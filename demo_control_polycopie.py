@@ -6,7 +6,6 @@ import matplotlib.pyplot
 import numpy
 import os
 
-
 # MRG packages
 import _env
 import preprocessing
@@ -17,8 +16,8 @@ import alpha_compute
 
 
 def your_optimization_procedure(domain_omega, spacestep, omega, f, f_dir, f_neu, f_rob,
-                           beta_pde, alpha_pde, alpha_dir, beta_neu, beta_rob, alpha_rob,
-                           Alpha, mu, chi, V_obj, mu1, V_0):
+                                beta_pde, alpha_pde, alpha_dir, beta_neu, beta_rob, alpha_rob,
+                                Alpha, mu, chi, V_obj, mu1, V_0):
     """This function return the optimized density.
 
     Parameter:
@@ -38,7 +37,13 @@ def your_optimization_procedure(domain_omega, spacestep, omega, f, f_dir, f_neu,
     while k < numb_iter and mu > 10**(-5):
         print('---- iteration number = ', k)
         print('1. computing solution of Helmholtz problem, i.e., u')
+        u = processing.solve_helmholtz(domain_omega, spacestep, omega, f, f_dir, f_neu,
+                                       f_rob, beta_pde, alpha_pde, alpha_dir, beta_neu, beta_rob, alpha_rob)
+
         print('2. computing solution of adjoint problem, i.e., p')
+        p = processing.solve_helmholtz(domain_omega, spacestep, omega, -2 * numpy.conj(u), numpy.zeros(
+            (M, N)), f_neu, f_rob, beta_pde, alpha_pde, alpha_dir, beta_neu, beta_rob, alpha_rob)
+
         print('3. computing objective function, i.e., energy')
         print('4. computing parametric gradient')
         while ene >= energy[k] and mu > 10 ** -5:
@@ -46,7 +51,8 @@ def your_optimization_procedure(domain_omega, spacestep, omega, f, f_dir, f_neu,
             print('    b. computing projected gradient')
             print('    c. computing solution of Helmholtz problem, i.e., u')
             print('    d. computing objective function, i.e., energy (E)')
-            ene = compute_objective_function(domain_omega, u, spacestep, mu1, V_0)
+            ene = compute_objective_function(
+                domain_omega, u, spacestep, mu1, V_0)
             if bool_a:
                 # The step is increased if the energy decreased
                 mu = mu * 1.1
@@ -90,7 +96,7 @@ if __name__ == '__main__':
     # -- set parameters of the geometry
     N = 70  # number of points along x-axis
     M = 2 * N  # number of points along y-axis
-    level = 2 # level of the fractal : limited by N
+    level = 2  # level of the fractal : limited by N
     spacestep = 1.0 / N  # mesh size
 
     # -- set parameters of the partial differential equation
@@ -103,13 +109,15 @@ if __name__ == '__main__':
     # -- Do not modify this cell, these are the values that you will be assessed against.
     # ----------------------------------------------------------------------
     # --- set coefficients of the partial differential equation
-    beta_pde, alpha_pde, alpha_dir, beta_neu, alpha_rob, beta_rob = preprocessing._set_coefficients_of_pde(M, N)
+    beta_pde, alpha_pde, alpha_dir, beta_neu, alpha_rob, beta_rob = preprocessing._set_coefficients_of_pde(
+        M, N)
 
     # -- set right hand sides of the partial differential equation
     f, f_dir, f_neu, f_rob = preprocessing._set_rhs_of_pde(M, N)
 
     # -- set geometry of domain
-    domain_omega, x, y, _, _ = preprocessing._set_geometry_of_domain(M, N, level)
+    domain_omega, x, y, _, _ = preprocessing._set_geometry_of_domain(
+        M, N, level)
 
     # ----------------------------------------------------------------------
     # -- Fell free to modify the function call in this cell.
@@ -125,15 +133,16 @@ if __name__ == '__main__':
     # -- initialize
     alpha_rob[:, :] = - wavenumber * 1j
 
-
     # -- define subset of border on which we put the liner
-    indices = list(range((len(x)-1)//5,3*(len(x)-1)//5)) # modify this to change liners distribution
+    # modify this to change liners distribution
+    indices = list(range((len(x)-1)//5, 3*(len(x)-1)//5))
 
-    budget = len(indices)/len(x) # budget : percentage of the border we can cover with liners
+    # budget : percentage of the border we can cover with liners
+    budget = len(indices)/len(x)
 
     x_sub = [x[k] for k in indices]
     y_sub = [y[k] for k in indices]
-    
+
     # -- define material density matrix
     chi = preprocessing._set_chi(M, N, x_sub, y_sub)
     chi = preprocessing.set2zero(chi, domain_omega)
@@ -163,7 +172,7 @@ if __name__ == '__main__':
     # ----------------------------------------------------------------------
     # -- compute finite difference solution
     u = processing.solve_helmholtz(domain_omega, spacestep, wavenumber, f, f_dir, f_neu, f_rob,
-                        beta_pde, alpha_pde, alpha_dir, beta_neu, beta_rob, alpha_rob)
+                                   beta_pde, alpha_pde, alpha_dir, beta_neu, beta_rob, alpha_rob)
     chi0 = chi.copy()
     u0 = u.copy()
 
