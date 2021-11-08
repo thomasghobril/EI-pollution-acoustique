@@ -46,6 +46,8 @@ def your_optimization_procedure(domain_omega, spacestep, omega, f, f_dir, f_neu,
 
         print('3. computing objective function, i.e., energy')
 
+        J = your_compute_objective_function(domain_omega, u, spacestep, mu1, V_0)
+
         print('4. computing parametric gradient')
 
         alpha = alpha_compute.compute()
@@ -110,9 +112,9 @@ def your_compute_objective_function(domain_omega, u, spacestep, mu1, V_0):
         for j in range(N-1):
             moy = (u[i, j]+u[i, j+1]+u[i+1, j]+u[i+1, j+1])/4
             J += numpy.abs(moy)**2*spacestep**2
-    J += mu1*(1.0-V_0)
+    J+=mu1*(preprocessing.volume(domain_omega)-V_0)
 
-    return energy
+    return J
 
 
 def projector(chi, l):
