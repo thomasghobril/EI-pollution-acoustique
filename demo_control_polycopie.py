@@ -46,13 +46,8 @@ def your_optimization_procedure(domain_omega, spacestep, omega, f, f_dir, f_neu,
 
         print('3. computing objective function, i.e., energy')
 
-        J = 0
-        for i in range(M-1):
-            for j in range(N-1):
-                moy = (u[i, j]+u[i, j+1]+u[i+1, j]+u[i+1, j+1])/4
-                J += numpy.abs(moy*spacestep**2)
-
         print('4. computing parametric gradient')
+
         alpha = alpha_compute.compute()
         Jp = -numpy.real(alpha*u*p)
 
@@ -105,7 +100,12 @@ def your_compute_objective_function(domain_omega, u, spacestep, mu1, V_0):
         V_0: float, it is a reference volume.
     """
 
-    energy = 0.0
+    J = 0
+    for i in range(M-1):
+        for j in range(N-1):
+            moy = (u[i, j]+u[i, j+1]+u[i+1, j]+u[i+1, j+1])/4
+            J += numpy.abs(moy)**2*spacestep**2
+    J += mu1*(1.0-V_0)
 
     return energy
 
@@ -162,11 +162,11 @@ if __name__ == '__main__':
     # ----------------------------------------------------------------------
     # -- define boundary conditions
     # planar wave defined on top
-    # f_dir[:, :] = 0.0
-    # f_dir[0, 0:N] = 1.0
-    # spherical wave defined on top
     f_dir[:, :] = 0.0
-    f_dir[0, int(N/2)] = 10.0
+    f_dir[0, 0:N] = 1.0
+    # spherical wave defined on top
+    # f_dir[:, :] = 0.0
+    # f_dir[0, int(N/2)] = 10.0
 
     # -- initialize
     alpha_rob[:, :] = - wavenumber * 1j
