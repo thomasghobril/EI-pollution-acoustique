@@ -45,7 +45,16 @@ def your_optimization_procedure(domain_omega, spacestep, omega, f, f_dir, f_neu,
             (M, N)), f_neu, f_rob, beta_pde, alpha_pde, alpha_dir, beta_neu, beta_rob, alpha_rob)
 
         print('3. computing objective function, i.e., energy')
+
+        J=0
+        for i in range(M-1):
+            for j in range(N-1):
+                moy=(u[i,j]+u[i,j+1]+u[i+1,j]+u[i+1,j+1])/4
+                J+=moy*spacestep**2
+
         print('4. computing parametric gradient')
+
+        
         while ene >= energy[k] and mu > 10 ** -5:
             print('    a. computing gradient descent')
             print('    b. computing projected gradient')
