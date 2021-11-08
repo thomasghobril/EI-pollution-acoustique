@@ -16,8 +16,8 @@ import postprocessing
 
 
 def your_optimization_procedure(domain_omega, spacestep, omega, f, f_dir, f_neu, f_rob,
-                           beta_pde, alpha_pde, alpha_dir, beta_neu, beta_rob, alpha_rob,
-                           Alpha, mu, chi, V_obj, mu1, V_0):
+                                beta_pde, alpha_pde, alpha_dir, beta_neu, beta_rob, alpha_rob,
+                                Alpha, mu, chi, V_obj, mu1, V_0):
     """This function return the optimized density.
 
     Parameter:
@@ -45,7 +45,8 @@ def your_optimization_procedure(domain_omega, spacestep, omega, f, f_dir, f_neu,
             print('    b. computing projected gradient')
             print('    c. computing solution of Helmholtz problem, i.e., u')
             print('    d. computing objective function, i.e., energy (E)')
-            ene = compute_objective_function(domain_omega, u, spacestep, mu1, V_0)
+            ene = compute_objective_function(
+                domain_omega, u, spacestep, mu1, V_0)
             if bool_a:
                 # The step is increased if the energy decreased
                 mu = mu * 1.1
@@ -89,26 +90,29 @@ if __name__ == '__main__':
     # -- set parameters of the geometry
     N = 70  # number of points along x-axis
     M = 2 * N  # number of points along y-axis
-    level = 2 # level of the fractal : limited by N
+    level = 2  # level of the fractal : limited by N
     spacestep = 1.0 / N  # mesh size
 
     # -- set parameters of the partial differential equation
     kx = -1.0
     ky = -1.0
+    c = 340
     wavenumber = numpy.sqrt(kx**2 + ky**2)  # wavenumber
     wavenumber = 10.0
-
+    omega = wavenumber*c
     # ----------------------------------------------------------------------
     # -- Do not modify this cell, these are the values that you will be assessed against.
     # ----------------------------------------------------------------------
     # --- set coefficients of the partial differential equation
-    beta_pde, alpha_pde, alpha_dir, beta_neu, alpha_rob, beta_rob = preprocessing._set_coefficients_of_pde(M, N)
+    beta_pde, alpha_pde, alpha_dir, beta_neu, alpha_rob, beta_rob = preprocessing._set_coefficients_of_pde(
+        M, N)
 
     # -- set right hand sides of the partial differential equation
     f, f_dir, f_neu, f_rob = preprocessing._set_rhs_of_pde(M, N)
 
     # -- set geometry of domain
-    domain_omega, x, y, _, _ = preprocessing._set_geometry_of_domain(M, N, level)
+    domain_omega, x, y, _, _ = preprocessing._set_geometry_of_domain(
+        M, N, level)
 
     # ----------------------------------------------------------------------
     # -- Fell free to modify the function call in this cell.
@@ -124,24 +128,23 @@ if __name__ == '__main__':
     # -- initialize
     alpha_rob[:, :] = - wavenumber * 1j
 
-
     # -- define subset of border on which we put the liner
-    indices = list(range((len(x)-1)//5,3*(len(x)-1)//5)) # modify this to change liners distribution
+    # modify this to change liners distribution
+    indices = list(range((len(x)-1)//5, 3*(len(x)-1)//5))
 
-    budget = len(indices)/len(x) # budget : percentage of the border we can cover with liners
+    # budget : percentage of the border we can cover with liners
+    budget = len(indices)/len(x)
 
     x_sub = [x[k] for k in indices]
     y_sub = [y[k] for k in indices]
-    
+
     # -- define material density matrix
     chi = preprocessing._set_chi(M, N, x_sub, y_sub)
     chi = preprocessing.set2zero(chi, domain_omega)
 
     # -- define absorbing material
-    Alpha = 10.0 - 10.0 * 1j
-    # -- this is the function you have written during your project
-    #import compute_alpha
-    #Alpha = compute_alpha.compute_alpha(...)
+    import alpha_compute
+    Alpha = alpha_compute.compute_alpha(omega)
     alpha_rob = Alpha * chi
 
     # -- set parameters for optimization
@@ -160,7 +163,7 @@ if __name__ == '__main__':
     # ----------------------------------------------------------------------
     # -- compute finite difference solution
     u = processing.solve_helmholtz(domain_omega, spacestep, wavenumber, f, f_dir, f_neu, f_rob,
-                        beta_pde, alpha_pde, alpha_dir, beta_neu, beta_rob, alpha_rob)
+                                   beta_pde, alpha_pde, alpha_dir, beta_neu, beta_rob, alpha_rob)
     chi0 = chi.copy()
     u0 = u.copy()
 
@@ -170,7 +173,7 @@ if __name__ == '__main__':
     # -- compute optimization
     energy = numpy.zeros((100+1, 1), dtype=numpy.float64)
     # chi, energy, u, grad = your_optimization_procedure(...)
-    #chi, energy, u, grad = solutions.optimization_procedure(domain_omega, spacestep, wavenumber, f, f_dir, f_neu, f_rob,
+    # chi, energy, u, grad = solutions.optimization_procedure(domain_omega, spacestep, wavenumber, f, f_dir, f_neu, f_rob,
     #                    beta_pde, alpha_pde, alpha_dir, beta_neu, beta_rob, alpha_rob,
     #                    Alpha, mu, chi, V_obj, mu1, V_0)
     # --- en of optimization
