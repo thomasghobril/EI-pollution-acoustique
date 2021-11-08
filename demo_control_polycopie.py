@@ -57,14 +57,25 @@ def your_optimization_procedure(domain_omega, spacestep, omega, f, f_dir, f_neu,
         Jp = -numpy.real(alpha*u*p)
 
         while ene >= energy[k] and mu > 10 ** -5:
+            l = 0
             print('    a. computing gradient descent')
-
+            chi_next = projector(chi-mu*Jp)
             print('    b. computing projected gradient')
+            while abs(integral(chi_next)-beta) >= eps1:
+                if integral(chi_next) > beta:
+                    l -= eps2
+                else:
+                    l += eps2
+                chi_next = projector(chi-mu*Jp)
             print('    c. computing solution of Helmholtz problem, i.e., u')
+            alpha_rob = Alpha * chi
+            u = processing.solve_helmholtz(domain_omega, spacestep, omega, f, f_dir, f_neu,
+                                           f_rob, beta_pde, alpha_pde, alpha_dir, beta_neu, beta_rob, alpha_rob)
             print('    d. computing objective function, i.e., energy (E)')
             ene = compute_objective_function(
                 domain_omega, u, spacestep, mu1, V_0)
-            if bool_a:
+            energy[k+1] = ene
+            if ene < energy[k]:
                 # The step is increased if the energy decreased
                 mu = mu * 1.1
             else:
@@ -105,6 +116,13 @@ def projector(chi, l):
     for i in range(n):
         new_chi[i] = max(0, min(chi+l, 1))
     return new_chi
+
+
+def integral(chi):
+    global spacestep
+    res = 0
+    for i in range(numpy.shape(chi)[0]-1):
+        res += chi[i]*spacestep
 
 
 if __name__ == '__main__':
