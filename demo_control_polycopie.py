@@ -102,9 +102,10 @@ if __name__ == '__main__':
     # -- set parameters of the partial differential equation
     kx = -1.0
     ky = -1.0
+    c = 340
     wavenumber = numpy.sqrt(kx**2 + ky**2)  # wavenumber
     wavenumber = 10.0
-
+    omega = wavenumber*c
     # ----------------------------------------------------------------------
     # -- Do not modify this cell, these are the values that you will be assessed against.
     # ----------------------------------------------------------------------
