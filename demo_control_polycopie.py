@@ -50,7 +50,7 @@ def your_optimization_procedure(domain_omega, spacestep, omega, f, f_dir, f_neu,
         for i in range(M-1):
             for j in range(N-1):
                 moy=(u[i,j]+u[i,j+1]+u[i+1,j]+u[i+1,j+1])/4
-                J+=moy*spacestep**2
+                J+=numpy.abs(moy*spacestep**2)
 
         print('4. computing parametric gradient')
         alpha = alpha_compute.compute()
@@ -58,6 +58,7 @@ def your_optimization_procedure(domain_omega, spacestep, omega, f, f_dir, f_neu,
 
         while ene >= energy[k] and mu > 10 ** -5:
             print('    a. computing gradient descent')
+
             print('    b. computing projected gradient')
             print('    c. computing solution of Helmholtz problem, i.e., u')
             print('    d. computing objective function, i.e., energy (E)')
