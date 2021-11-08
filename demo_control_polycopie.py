@@ -12,6 +12,7 @@ import _env
 import preprocessing
 import processing
 import postprocessing
+import alpha_compute
 #import solutions
 
 
@@ -138,7 +139,9 @@ if __name__ == '__main__':
     chi = preprocessing.set2zero(chi, domain_omega)
 
     # -- define absorbing material
-    Alpha = 10.0 - 10.0 * 1j
+    al = alpha_compute.compute(wavenumber*340)
+    Alpha = al[0] + j*al[1]
+
     # -- this is the function you have written during your project
     #import compute_alpha
     #Alpha = compute_alpha.compute_alpha(...)
@@ -170,7 +173,7 @@ if __name__ == '__main__':
     # -- compute optimization
     energy = numpy.zeros((100+1, 1), dtype=numpy.float64)
     # chi, energy, u, grad = your_optimization_procedure(...)
-    #chi, energy, u, grad = solutions.optimization_procedure(domain_omega, spacestep, wavenumber, f, f_dir, f_neu, f_rob,
+    # chi, energy, u, grad = solutions.optimization_procedure(domain_omega, spacestep, wavenumber, f, f_dir, f_neu, f_rob,
     #                    beta_pde, alpha_pde, alpha_dir, beta_neu, beta_rob, alpha_rob,
     #                    Alpha, mu, chi, V_obj, mu1, V_0)
     # --- en of optimization
