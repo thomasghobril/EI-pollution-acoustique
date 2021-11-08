@@ -1,5 +1,12 @@
 # -*- coding: utf-8 -*-
 
+'''
+1. Améliorer optimisation eps2, l
+2. Changer distrib initiale
+3. Changer le vecteur d'onde
+4. Différents Omega
+'''
+
 
 # Python packages
 import matplotlib.pyplot
@@ -18,6 +25,10 @@ import alpha_compute
 def your_optimization_procedure(domain_omega, spacestep, omega, f, f_dir, f_neu, f_rob,
                                 beta_pde, alpha_pde, alpha_dir, beta_neu, beta_rob, alpha_rob,
                                 Alpha, mu, chi, V_obj, mu1, V_0):
+
+    eps1 = 0.01
+    eps2 = 0.01
+    eps0 = 0.01
     """This function return the optimized density.
 
     Parameter:
@@ -34,7 +45,7 @@ def your_optimization_procedure(domain_omega, spacestep, omega, f, f_dir, f_neu,
     (M, N) = numpy.shape(domain_omega)
     numb_iter = 100
     energy = numpy.zeros((numb_iter+1, 1), dtype=numpy.float64)
-    while k < numb_iter and mu > 10**(-5):
+    while k < numb_iter and mu > eps0:
         print('---- iteration number = ', k)
         print('1. computing solution of Helmholtz problem, i.e., u')
         u = processing.solve_helmholtz(domain_omega, spacestep, omega, f, f_dir, f_neu,
@@ -52,11 +63,11 @@ def your_optimization_procedure(domain_omega, spacestep, omega, f, f_dir, f_neu,
 
         print('4. computing parametric gradient')
 
-        a = alpha_compute.compute(omega)
+        a = alpha_compute.compute(omega*340)
         alpha = a[0] + 1.0j*a[1]
         Jp = -numpy.real(alpha*u*p)
 
-        while ene >= energy[k] and mu > 10 ** -5:
+        while ene >= energy[k] and mu > eps0:
             l = 0
 
             print('    a. computing gradient descent')
@@ -86,8 +97,10 @@ def your_optimization_procedure(domain_omega, spacestep, omega, f, f_dir, f_neu,
             else:
                 # The step is decreased is the energy increased
                 mu = mu / 2
+        chi = chi_next
         k += 1
 
+    grad = 0
     print('end. computing solution of Helmholtz problem, i.e., u')
 
     return chi, energy, u, grad
@@ -135,7 +148,7 @@ def integral(chi):
     n, m = numpy.shape(chi)
     for j in range(m-1):
         for i in range(n-1):
-            res += chi[i][j]*spacestep**2
+            res += chi[i][j]**2*spacestep**2
     return res
 
 
@@ -233,9 +246,7 @@ if __name__ == '__main__':
     # ----------------------------------------------------------------------
     # -- compute optimization
     energy = numpy.zeros((100+1, 1), dtype=numpy.float64)
-    chi, energy, u, grad = your_optimization_procedure(domain_omega, spacestep, omega, f, f_dir, f_neu, f_rob,
-                                                       beta_pde, alpha_pde, alpha_dir, beta_neu, beta_rob, alpha_rob,
-                                                       Alpha, mu, chi, V_obj, mu1, V_0)
+    chi, energy, u, grad = your_optimization_procedure(domain_omega, spacestep, omega, f, f_dir, f_neu, f_rob, beta_pde, alpha_pde, alpha_dir, beta_neu, beta_rob, alpha_rob, Alpha, mu, chi, V_obj, mu1, V_0)
     # chi, energy, u, grad = solutions.optimization_procedure(domain_omega, spacestep, wavenumber, f, f_dir, f_neu, f_rob,
     #                    beta_pde, alpha_pde, alpha_dir, beta_neu, beta_rob, alpha_rob,
     #                    Alpha, mu, chi, V_obj, mu1, V_0)
