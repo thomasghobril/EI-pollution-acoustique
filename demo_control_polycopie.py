@@ -58,7 +58,7 @@ def your_optimization_procedure(domain_omega, spacestep, omega, f, f_dir, f_neu,
             l = 0
 
             print('    a. computing gradient descent')
-            chi_next = projector(chi-mu*Jp)
+            chi_next = projector(chi-mu*Jp, l)
 
             print('    b. computing projected gradient')
             while abs(integral(chi_next)-beta) >= eps1:
@@ -66,7 +66,7 @@ def your_optimization_procedure(domain_omega, spacestep, omega, f, f_dir, f_neu,
                     l -= eps2
                 else:
                     l += eps2
-                chi_next = projector(chi-mu*Jp)
+                chi_next = projector(chi-mu*Jp, l)
 
             print('    c. computing solution of Helmholtz problem, i.e., u')
             alpha_rob = Alpha * chi
