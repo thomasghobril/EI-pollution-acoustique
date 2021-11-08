@@ -62,8 +62,8 @@ def your_optimization_procedure(domain_omega, spacestep, omega, f, f_dir, f_neu,
             chi_next = projector(chi-mu*Jp, l)
 
             print('    b. computing projected gradient')
-            while abs(integral(chi_next)-beta) >= eps1:
-                if integral(chi_next) > beta:
+            while abs(integral(chi_next)-V_obj) >= eps1:
+                if integral(chi_next) > V_obj:
                     l -= eps2
                 else:
                     l += eps2
@@ -75,7 +75,8 @@ def your_optimization_procedure(domain_omega, spacestep, omega, f, f_dir, f_neu,
                                            f_rob, beta_pde, alpha_pde, alpha_dir, beta_neu, beta_rob, alpha_rob)
 
             print('    d. computing objective function, i.e., energy (E)')
-            ene = compute_objective_function(domain_omega, u, spacestep, mu1, V_0)
+            ene = your_compute_objective_function(
+                domain_omega, u, spacestep, mu1, V_0)
             energy[k+1] = ene
 
             if ene < energy[k]:
@@ -113,7 +114,7 @@ def your_compute_objective_function(domain_omega, u, spacestep, mu1, V_0):
         for j in range(N-1):
             moy = (u[i, j]+u[i, j+1]+u[i+1, j]+u[i+1, j+1])/4
             J += numpy.abs(moy)**2*spacestep**2
-    J+=mu1*(preprocessing.volume(domain_omega)-V_0)
+    J += mu1*(preprocessing.volume(domain_omega)-V_0)
 
     return J
 
