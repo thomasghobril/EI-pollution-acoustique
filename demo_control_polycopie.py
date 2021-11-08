@@ -75,7 +75,7 @@ def your_optimization_procedure(domain_omega, spacestep, omega, f, f_dir, f_neu,
                                            f_rob, beta_pde, alpha_pde, alpha_dir, beta_neu, beta_rob, alpha_rob)
 
             print('    d. computing objective function, i.e., energy (E)')
-            ene = compute_objective_function(
+            ene = your_compute_objective_function(
                 domain_omega, u, spacestep, mu1, V_0)
             energy[k+1] = ene
 
