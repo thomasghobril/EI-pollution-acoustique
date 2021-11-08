@@ -46,12 +46,13 @@ def your_optimization_procedure(domain_omega, spacestep, omega, f, f_dir, f_neu,
 
         print('3. computing objective function, i.e., energy')
 
-        J = your_compute_objective_function(domain_omega, u, spacestep, mu1, V_0)
-        energy[k]=J
+        ene = your_compute_objective_function(domain_omega, u, spacestep, mu1, V_0)
+        energy[k]=ene
 
         print('4. computing parametric gradient')
 
-        alpha = alpha_compute.compute()
+        a = alpha_compute.compute(omega)
+        alpha = a[0] + 1.0j*a[1]
         Jp = -numpy.real(alpha*u*p)
 
         while ene >= energy[k] and mu > 10 ** -5:
@@ -121,7 +122,7 @@ def projector(chi, l):
     n = numpy.shape(chi)[0]
     new_chi = numpy.zeros(n, dtype='float')
     for i in range(n):
-        new_chi[i] = max(0, min(chi+l, 1))
+        new_chi[i] = max(0, min(chi[i]+l, 1))
     return new_chi
 
 
@@ -226,7 +227,9 @@ if __name__ == '__main__':
     # ----------------------------------------------------------------------
     # -- compute optimization
     energy = numpy.zeros((100+1, 1), dtype=numpy.float64)
-    # chi, energy, u, grad = your_optimization_procedure(...)
+    chi, energy, u, grad = your_optimization_procedure(domain_omega, spacestep, omega, f, f_dir, f_neu, f_rob,
+                                beta_pde, alpha_pde, alpha_dir, beta_neu, beta_rob, alpha_rob,
+                                Alpha, mu, chi, V_obj, mu1, V_0)
     # chi, energy, u, grad = solutions.optimization_procedure(domain_omega, spacestep, wavenumber, f, f_dir, f_neu, f_rob,
     #                    beta_pde, alpha_pde, alpha_dir, beta_neu, beta_rob, alpha_rob,
     #                    Alpha, mu, chi, V_obj, mu1, V_0)

@@ -101,7 +101,7 @@ def _set_geometry_of_domain(M, N, level=0):
 
 
 def volume(domain):
-    np.count_nonzero(domain==_env.NODE_INTERIOR)
+    return numpy.count_nonzero(domain==_env.NODE_INTERIOR)
 
 def _set_chi(M, N, x, y):
     chi = numpy.zeros((M, N), dtype=numpy.float64)
