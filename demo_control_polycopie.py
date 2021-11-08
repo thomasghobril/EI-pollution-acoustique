@@ -140,7 +140,7 @@ if __name__ == '__main__':
 
     # -- define absorbing material
     al = alpha_compute.compute(wavenumber*340)
-    Alpha = al[0] + j*al[1]
+    Alpha = al[0] + 1.0j*al[1]
 
     # -- this is the function you have written during your project
     #import compute_alpha
