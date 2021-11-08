@@ -53,8 +53,9 @@ def your_optimization_procedure(domain_omega, spacestep, omega, f, f_dir, f_neu,
                 J+=moy*spacestep**2
 
         print('4. computing parametric gradient')
+        alpha = alpha_compute.compute()
+        Jp = -numpy.real(alpha*u*p)
 
-        
         while ene >= energy[k] and mu > 10 ** -5:
             print('    a. computing gradient descent')
             print('    b. computing projected gradient')
