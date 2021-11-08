@@ -49,20 +49,35 @@ def your_optimization_procedure(domain_omega, spacestep, omega, f, f_dir, f_neu,
         J = your_compute_objective_function(domain_omega, u, spacestep, mu1, V_0)
 
         print('4. computing parametric gradient')
-        
+
         alpha = alpha_compute.compute()
         Jp = -numpy.real(alpha*u*p)
 
         while ene >= energy[k] and mu > 10 ** -5:
+            l = 0
+
             print('    a. computing gradient descent')
+            chi_next = projector(chi-mu*Jp)
 
             print('    b. computing projected gradient')
+            while abs(integral(chi_next)-beta) >= eps1:
+                if integral(chi_next) > beta:
+                    l -= eps2
+                else:
+                    l += eps2
+                chi_next = projector(chi-mu*Jp)
 
             print('    c. computing solution of Helmholtz problem, i.e., u')
+            alpha_rob = Alpha * chi
+            u = processing.solve_helmholtz(domain_omega, spacestep, omega, f, f_dir, f_neu,
+                                           f_rob, beta_pde, alpha_pde, alpha_dir, beta_neu, beta_rob, alpha_rob)
 
             print('    d. computing objective function, i.e., energy (E)')
-            ene = compute_objective_function(domain_omega, u, spacestep, mu1, V_0)
-            if bool_a:
+            ene = compute_objective_function(
+                domain_omega, u, spacestep, mu1, V_0)
+            energy[k+1] = ene
+
+            if ene < energy[k]:
                 # The step is increased if the energy decreased
                 mu = mu * 1.1
             else:
@@ -110,6 +125,13 @@ def projector(chi, l):
     return new_chi
 
 
+def integral(chi):
+    global spacestep
+    res = 0
+    for i in range(numpy.shape(chi)[0]-1):
+        res += chi[i]*spacestep
+
+
 if __name__ == '__main__':
 
     # ----------------------------------------------------------------------
@@ -132,13 +154,15 @@ if __name__ == '__main__':
     # -- Do not modify this cell, these are the values that you will be assessed against.
     # ----------------------------------------------------------------------
     # --- set coefficients of the partial differential equation
-    beta_pde, alpha_pde, alpha_dir, beta_neu, alpha_rob, beta_rob = preprocessing._set_coefficients_of_pde(M, N)
+    beta_pde, alpha_pde, alpha_dir, beta_neu, alpha_rob, beta_rob = preprocessing._set_coefficients_of_pde(
+        M, N)
 
     # -- set right hand sides of the partial differential equation
     f, f_dir, f_neu, f_rob = preprocessing._set_rhs_of_pde(M, N)
 
     # -- set geometry of domain
-    domain_omega, x, y, _, _ = preprocessing._set_geometry_of_domain(M, N, level)
+    domain_omega, x, y, _, _ = preprocessing._set_geometry_of_domain(
+        M, N, level)
 
     # ----------------------------------------------------------------------
     # -- Fell free to modify the function call in this cell.
