@@ -46,8 +46,9 @@ def your_optimization_procedure(domain_omega, spacestep, omega, f, f_dir, f_neu,
 
         print('3. computing objective function, i.e., energy')
 
-        ene = your_compute_objective_function(domain_omega, u, spacestep, mu1, V_0)
-        energy[k]=ene
+        ene = your_compute_objective_function(
+            domain_omega, u, spacestep, mu1, V_0)
+        energy[k] = ene
 
         print('4. computing parametric gradient')
 
@@ -120,18 +121,22 @@ def your_compute_objective_function(domain_omega, u, spacestep, mu1, V_0):
 
 
 def projector(chi, l):
-    n = numpy.shape(chi)[0]
-    new_chi = numpy.zeros(n, dtype='float')
+    n, m = numpy.shape(chi)
+    new_chi = numpy.zeros((n, m), dtype='float')
     for i in range(n):
-        new_chi[i] = max(0, min(chi[i]+l, 1))
+        for j in range(m):
+            new_chi[i][j] = max(0, min(chi[i][j]+l, 1))
     return new_chi
 
 
 def integral(chi):
     global spacestep
     res = 0
-    for i in range(numpy.shape(chi)[0]-1):
-        res += chi[i]*spacestep
+    n, m = numpy.shape(chi)
+    for j in range(m-1):
+        for i in range(n-1):
+            res += chi[i][j]*spacestep**2
+    return res
 
 
 if __name__ == '__main__':
@@ -229,8 +234,8 @@ if __name__ == '__main__':
     # -- compute optimization
     energy = numpy.zeros((100+1, 1), dtype=numpy.float64)
     chi, energy, u, grad = your_optimization_procedure(domain_omega, spacestep, omega, f, f_dir, f_neu, f_rob,
-                                beta_pde, alpha_pde, alpha_dir, beta_neu, beta_rob, alpha_rob,
-                                Alpha, mu, chi, V_obj, mu1, V_0)
+                                                       beta_pde, alpha_pde, alpha_dir, beta_neu, beta_rob, alpha_rob,
+                                                       Alpha, mu, chi, V_obj, mu1, V_0)
     # chi, energy, u, grad = solutions.optimization_procedure(domain_omega, spacestep, wavenumber, f, f_dir, f_neu, f_rob,
     #                    beta_pde, alpha_pde, alpha_dir, beta_neu, beta_rob, alpha_rob,
     #                    Alpha, mu, chi, V_obj, mu1, V_0)
