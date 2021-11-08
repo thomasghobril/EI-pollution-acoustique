@@ -46,13 +46,10 @@ def your_optimization_procedure(domain_omega, spacestep, omega, f, f_dir, f_neu,
 
         print('3. computing objective function, i.e., energy')
 
-        J = 0
-        for i in range(M-1):
-            for j in range(N-1):
-                moy = (u[i, j]+u[i, j+1]+u[i+1, j]+u[i+1, j+1])/4
-                J += numpy.abs(moy*spacestep**2)
+        
 
         print('4. computing parametric gradient')
+        
         alpha = alpha_compute.compute()
         Jp = -numpy.real(alpha*u*p)
 
@@ -60,10 +57,11 @@ def your_optimization_procedure(domain_omega, spacestep, omega, f, f_dir, f_neu,
             print('    a. computing gradient descent')
 
             print('    b. computing projected gradient')
+
             print('    c. computing solution of Helmholtz problem, i.e., u')
+
             print('    d. computing objective function, i.e., energy (E)')
-            ene = compute_objective_function(
-                domain_omega, u, spacestep, mu1, V_0)
+            ene = compute_objective_function(domain_omega, u, spacestep, mu1, V_0)
             if bool_a:
                 # The step is increased if the energy decreased
                 mu = mu * 1.1
@@ -94,7 +92,12 @@ def your_compute_objective_function(domain_omega, u, spacestep, mu1, V_0):
         V_0: float, it is a reference volume.
     """
 
-    energy = 0.0
+    J = 0
+    for i in range(M-1):
+        for j in range(N-1):
+            moy = (u[i, j]+u[i, j+1]+u[i+1, j]+u[i+1, j+1])/4
+            J += numpy.abs(moy)**2*spacestep**2
+    J+=mu1*(1.0-V_0)
 
     return energy
 
@@ -129,26 +132,24 @@ if __name__ == '__main__':
     # -- Do not modify this cell, these are the values that you will be assessed against.
     # ----------------------------------------------------------------------
     # --- set coefficients of the partial differential equation
-    beta_pde, alpha_pde, alpha_dir, beta_neu, alpha_rob, beta_rob = preprocessing._set_coefficients_of_pde(
-        M, N)
+    beta_pde, alpha_pde, alpha_dir, beta_neu, alpha_rob, beta_rob = preprocessing._set_coefficients_of_pde(M, N)
 
     # -- set right hand sides of the partial differential equation
     f, f_dir, f_neu, f_rob = preprocessing._set_rhs_of_pde(M, N)
 
     # -- set geometry of domain
-    domain_omega, x, y, _, _ = preprocessing._set_geometry_of_domain(
-        M, N, level)
+    domain_omega, x, y, _, _ = preprocessing._set_geometry_of_domain(M, N, level)
 
     # ----------------------------------------------------------------------
     # -- Fell free to modify the function call in this cell.
     # ----------------------------------------------------------------------
     # -- define boundary conditions
     # planar wave defined on top
-    # f_dir[:, :] = 0.0
-    # f_dir[0, 0:N] = 1.0
-    # spherical wave defined on top
     f_dir[:, :] = 0.0
-    f_dir[0, int(N/2)] = 10.0
+    f_dir[0, 0:N] = 1.0
+    # spherical wave defined on top
+    # f_dir[:, :] = 0.0
+    # f_dir[0, int(N/2)] = 10.0
 
     # -- initialize
     alpha_rob[:, :] = - wavenumber * 1j
