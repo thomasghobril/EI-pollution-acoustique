@@ -19,6 +19,7 @@ import preprocessing
 import processing
 import postprocessing
 import alpha_compute
+import pdb
 #import solutions
 
 
@@ -26,7 +27,7 @@ def your_optimization_procedure(domain_omega, spacestep, wavenumber, f, f_dir, f
                                 beta_pde, alpha_pde, alpha_dir, beta_neu, beta_rob, alpha_rob,
                                 Alpha, mu, chi, V_obj, mu1, V_0):
 
-    eps1 = 0.01
+    eps1 = 0.5
     eps2 = 0.01
     eps0 = 0.00001
     """This function return the optimized density.
@@ -76,8 +77,6 @@ def your_optimization_procedure(domain_omega, spacestep, wavenumber, f, f_dir, f
         for i in range(n-1):
             Jp[n-1-i, :] = Jp[n-1-i-1, :]
 
-        print(Jp)
-
         postprocessing._plot_perso_solution(Jp, chi*0)
 
         while ene >= energy[k] and mu > eps0:
@@ -91,10 +90,11 @@ def your_optimization_procedure(domain_omega, spacestep, wavenumber, f, f_dir, f
                     l -= eps2
                 else:
                     l += eps2
+                print(l)
                 chi_next = projector(chi-mu*Jp, l, domain_omega)
 
             print('    c. computing solution of Helmholtz problem, i.e., u')
-            alpha_rob = Alpha * chi
+            alpha_rob = Alpha * chi_next
             u = processing.solve_helmholtz(domain_omega, spacestep, wavenumber, f, f_dir, f_neu,
                                            f_rob, beta_pde, alpha_pde, alpha_dir, beta_neu, beta_rob, alpha_rob)
 
@@ -102,7 +102,6 @@ def your_optimization_procedure(domain_omega, spacestep, wavenumber, f, f_dir, f
             ene = your_compute_objective_function(
                 domain_omega, u, spacestep, mu1, V_0)
             energy[k+1] = ene
-
             if ene < energy[k]:
                 # The step is increased if the energy decreased
                 mu = mu * 1.1
@@ -171,7 +170,7 @@ if __name__ == '__main__':
     # -- Fell free to modify the function call in this cell.
     # ----------------------------------------------------------------------
     # -- set parameters of the geometry
-    N = 20  # number of points along x-axis
+    N = 40  # number of points along x-axis
     M = 2 * N  # number of points along y-axis
     level = 0  # level of the fractal : limited by N
     spacestep = 1.0 / N  # mesh size
