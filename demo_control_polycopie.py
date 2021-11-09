@@ -25,9 +25,8 @@ import alpha_compute
 def your_optimization_procedure(domain_omega, spacestep, wavenumber, f, f_dir, f_neu, f_rob,
                                 beta_pde, alpha_pde, alpha_dir, beta_neu, beta_rob, alpha_rob,
                                 Alpha, mu, chi, V_obj, mu1, V_0):
-    eps3 = 0.1
-    eps1 = 1
-    eps2 = 0.03
+    eps3 = 0.05
+    eps1 = 0.1
     eps0 = 0.0000001
     """This function return the optimized density.
 
@@ -85,7 +84,7 @@ def your_optimization_procedure(domain_omega, spacestep, wavenumber, f, f_dir, f
             # postprocessing._plot_perso_solution(chi_next, chi*0)
 
             # print('    b. computing projected gradient')
-
+            eps2=10
             int = integral(chi_next)
             while abs(int-V_obj) >= eps1:
                 if int > V_obj:
@@ -94,7 +93,9 @@ def your_optimization_procedure(domain_omega, spacestep, wavenumber, f, f_dir, f
                     l += eps2
                 chi_next = projector(chi-mu*Jp, l, domain_omega)
                 int = integral(chi_next)
-
+                print("l:",l)
+                eps2/=2
+            
             # print('    c. computing solution of Helmholtz problem, i.e., u')
             alpha_rob = Alpha * chi_next
             u = processing.solve_helmholtz(domain_omega, spacestep, wavenumber, f, f_dir, f_neu,
@@ -111,6 +112,7 @@ def your_optimization_procedure(domain_omega, spacestep, wavenumber, f, f_dir, f
 
             if ene < energy[k]:
                 # The step is increased if the energy decreased
+                break
                 mu = mu * (1 + eps3)
             else:
                 # The step is decreased is the energy increased
@@ -179,7 +181,7 @@ if __name__ == '__main__':
     # -- set parameters of the geometry
     N = 40  # number of points along x-axis
     M = 2 * N  # number of points along y-axis
-    level = 2 # level of the fractal : limited by N
+    level = 0 # level of the fractal : limited by N
     spacestep = 1.0 / N  # mesh size
 
     # -- set parameters of the partial differential equation
