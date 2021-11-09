@@ -26,8 +26,8 @@ def your_optimization_procedure(domain_omega, spacestep, wavenumber, f, f_dir, f
                                 beta_pde, alpha_pde, alpha_dir, beta_neu, beta_rob, alpha_rob,
                                 Alpha, mu, chi, V_obj, mu1, V_0):
 
-    eps1 = 0.01
-    eps2 = 0.01
+    eps1 = 1
+    eps2 = 0.03
     eps0 = 0.00001
     """This function return the optimized density.
 
@@ -58,48 +58,55 @@ def your_optimization_procedure(domain_omega, spacestep, wavenumber, f, f_dir, f
         # # ubis = u/numpy.max(numpy.abs(u))
         # postprocessing._plot_perso_solution(p, chi)
 
-        print('2. computing solution of adjoint problem, i.e., p')
+        # print('2. computing solution of adjoint problem, i.e., p')
         p = processing.solve_helmholtz(domain_omega, spacestep, wavenumber, -2 * numpy.conj(u), numpy.zeros(
             (M, N)), f_neu, f_rob, beta_pde, alpha_pde, alpha_dir, beta_neu, beta_rob, alpha_rob)
 
-        print('3. computing objective function, i.e., energy')
+        # print('3. computing objective function, i.e., energy')
 
         ene = your_compute_objective_function(
             domain_omega, u, spacestep, mu1, V_0)
+
+        print('1st energy = ', ene)
+
         energy[k] = ene
 
-        print('4. computing parametric gradient')
+        # print('4. computing parametric gradient')
 
         Jp = -numpy.real(Alpha*u*p)
 
         Jp[1:, :] = Jp[:-1, :]
 
-        print(Jp)
-
-        postprocessing._plot_perso_solution(Jp, chi*0)
-
         while ene >= energy[k] and mu > eps0:
             l = 0
-            print('    a. computing gradient descent')
+            # print('    a. computing gradient descent')
             chi_next = projector(chi-mu*Jp, l, domain_omega)
 
-            print('    b. computing projected gradient')
+            # postprocessing._plot_perso_solution(chi_next, chi*0)
 
-            while abs(integral(chi_next)-V_obj) >= eps1:
-                if integral(chi_next) > V_obj:
+            # print('    b. computing projected gradient')
+
+            int = integral(chi_next)
+            while abs(int-V_obj) >= eps1:
+                if int > V_obj:
                     l -= eps2
                 else:
                     l += eps2
                 chi_next = projector(chi-mu*Jp, l, domain_omega)
+                int = integral(chi_next)
 
-            print('    c. computing solution of Helmholtz problem, i.e., u')
-            alpha_rob = Alpha * chi
+            # print('    c. computing solution of Helmholtz problem, i.e., u')
+            alpha_rob = Alpha * chi_next
             u = processing.solve_helmholtz(domain_omega, spacestep, wavenumber, f, f_dir, f_neu,
                                            f_rob, beta_pde, alpha_pde, alpha_dir, beta_neu, beta_rob, alpha_rob)
 
-            print('    d. computing objective function, i.e., energy (E)')
+            # print('    d. computing objective function, i.e., energy (E)')
             ene = your_compute_objective_function(
                 domain_omega, u, spacestep, mu1, V_0)
+
+            postprocessing._plot_perso_solution(u, chi*0)
+            print("Energy = ", ene)
+
             energy[k+1] = ene
 
             if ene < energy[k]:
@@ -170,7 +177,7 @@ if __name__ == '__main__':
     # -- Fell free to modify the function call in this cell.
     # ----------------------------------------------------------------------
     # -- set parameters of the geometry
-    N = 20  # number of points along x-axis
+    N = 40  # number of points along x-axis
     M = 2 * N  # number of points along y-axis
     level = 0  # level of the fractal : limited by N
     spacestep = 1.0 / N  # mesh size
@@ -212,7 +219,7 @@ if __name__ == '__main__':
 
     # -- define subset of border on which we put the liner
     # modify this to change liners distribution
-    indices = list(range((len(x)-1)//5, 3*(len(x)-1)//5))
+    indices = list(range(2*(len(x)-1)//5, 4*(len(x)-1)//5))
 
     # budget : percentage of the border we can cover with liners
     budget = len(indices)/len(x)
