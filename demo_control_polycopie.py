@@ -226,9 +226,9 @@ if __name__ == '__main__':
 
     # -- define subset of border on which we put the liner
     # modify this to change liners distribution
-    indices = list(range(1*(len(x)-1)//5, 2*(len(x)-1)//5))
-    indices.extend(list(range(3*(len(x)-1)//5, 4*(len(x)-1)//5)))
-    print(indices)
+    indices = list(range(1*(len(x)-1)//5, 3*(len(x)-1)//5))
+    # indices.extend(list(range(3*(len(x)-1)//5, 4*(len(x)-1)//5)))
+    # print(indices)
 
     # budget : percentage of the border we can cover with liners
     budget = len(indices)/len(x)
@@ -258,7 +258,7 @@ if __name__ == '__main__':
     V_0 = 1  # initial volume of the domain
     # V_obj = numpy.sum(numpy.sum(chi)) / S  # constraint on the density
     V_obj = numpy.sum(numpy.sum(chi))
-    mu = 5  # initial gradient step
+    mu = 20  # initial gradient step
     mu1 = 10**(-5)  # parameter of the volume functional
 
     # ----------------------------------------------------------------------
