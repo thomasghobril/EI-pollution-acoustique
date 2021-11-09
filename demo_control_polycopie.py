@@ -72,9 +72,7 @@ def your_optimization_procedure(domain_omega, spacestep, wavenumber, f, f_dir, f
 
         Jp = -numpy.real(Alpha*u*p)
 
-        n = numpy.shape(Jp)[0]
-        for i in range(n-1):
-            Jp[n-1-i, :] = Jp[n-1-i-1, :]
+        Jp[1:, :] = Jp[:-1, :]
 
         print(Jp)
 
@@ -86,6 +84,7 @@ def your_optimization_procedure(domain_omega, spacestep, wavenumber, f, f_dir, f
             chi_next = projector(chi-mu*Jp, l, domain_omega)
 
             print('    b. computing projected gradient')
+
             while abs(integral(chi_next)-V_obj) >= eps1:
                 if integral(chi_next) > V_obj:
                     l -= eps2
