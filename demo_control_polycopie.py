@@ -27,7 +27,7 @@ def your_optimization_procedure(domain_omega, spacestep, wavenumber, f, f_dir, f
                                 Alpha, mu, chi, V_obj, mu1, V_0):
 
     eps1 = 0.01
-    eps2_0 = 10
+    eps2_0 = 60
     eps2 = eps2_0
     eps0 = 0.00001
     """This function return the optimized density.
@@ -76,10 +76,7 @@ def your_optimization_procedure(domain_omega, spacestep, wavenumber, f, f_dir, f
 
         Jp = -numpy.real(Alpha*u*p)
 
-        postprocessing._plot_perso_solution(Jp, chi*0)
-
         Jp[1:, :] = Jp[:-1, :]
-        postprocessing._plot_perso_solution(Jp, chi*0)
 
         while ene >= energy[k] and mu > eps0:
             l = 0
@@ -92,6 +89,7 @@ def your_optimization_procedure(domain_omega, spacestep, wavenumber, f, f_dir, f
 
             int = integral(chi_next)
             eps2 = eps2_0
+
             while abs(int-V_obj) >= eps1:
                 if int > V_obj:
                     l -= eps2
@@ -100,8 +98,8 @@ def your_optimization_procedure(domain_omega, spacestep, wavenumber, f, f_dir, f
                 chi_next = projector(chi-mu*Jp, l, domain_omega)
                 int = integral(chi_next)
                 eps2 /= 2
-                # print(int, V_obj)
-
+                print(int, V_obj)
+            postprocessing._plot_perso_solution(chi_next, chi*0)
             # print('    c. computing solution of Helmholtz problem, i.e., u')
             alpha_rob = Alpha * chi_next
             u = processing.solve_helmholtz(domain_omega, spacestep, wavenumber, f, f_dir, f_neu,
@@ -186,7 +184,7 @@ if __name__ == '__main__':
     # -- set parameters of the geometry
     N = 40  # number of points along x-axis
     M = 2 * N  # number of points along y-axis
-    level = 0  # level of the fractal : limited by N
+    level = 2  # level of the fractal : limited by N
     spacestep = 1.0 / N  # mesh size
 
     # -- set parameters of the partial differential equation
@@ -226,7 +224,7 @@ if __name__ == '__main__':
 
     # -- define subset of border on which we put the liner
     # modify this to change liners distribution
-    indices = list(range(1*(len(x)-1)//5, 3*(len(x)-1)//5))
+    indices = list(range(0*(len(x)-1)//10, 4*(len(x)-1)//10))
     # indices.extend(list(range(3*(len(x)-1)//5, 4*(len(x)-1)//5)))
     # print(indices)
 
