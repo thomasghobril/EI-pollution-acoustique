@@ -22,7 +22,7 @@ import alpha_compute
 #import solutions
 
 
-def your_optimization_procedure(domain_omega, spacestep, omega, f, f_dir, f_neu, f_rob,
+def your_optimization_procedure(domain_omega, spacestep, wavenumber, f, f_dir, f_neu, f_rob,
                                 beta_pde, alpha_pde, alpha_dir, beta_neu, beta_rob, alpha_rob,
                                 Alpha, mu, chi, V_obj, mu1, V_0):
 
@@ -48,11 +48,18 @@ def your_optimization_procedure(domain_omega, spacestep, omega, f, f_dir, f_neu,
     while k < numb_iter and mu > eps0:
         print('---- iteration number = ', k)
         print('1. computing solution of Helmholtz problem, i.e., u')
-        u = processing.solve_helmholtz(domain_omega, spacestep, omega, f, f_dir, f_neu,
+
+        u = processing.solve_helmholtz(domain_omega, spacestep, wavenumber, f, f_dir, f_neu,
                                        f_rob, beta_pde, alpha_pde, alpha_dir, beta_neu, beta_rob, alpha_rob)
 
+        # p = processing.solve_helmholtz(domain_omega, spacestep, wavenumber, -2 * numpy.conj(u), numpy.zeros(
+        #     (M, N)), f_neu, f_rob, beta_pde, alpha_pde, alpha_dir, beta_neu, beta_rob, alpha_rob)
+
+        # # ubis = u/numpy.max(numpy.abs(u))
+        # postprocessing._plot_perso_solution(p, chi)
+
         print('2. computing solution of adjoint problem, i.e., p')
-        p = processing.solve_helmholtz(domain_omega, spacestep, omega, -2 * numpy.conj(u), numpy.zeros(
+        p = processing.solve_helmholtz(domain_omega, spacestep, wavenumber, -2 * numpy.conj(u), numpy.zeros(
             (M, N)), f_neu, f_rob, beta_pde, alpha_pde, alpha_dir, beta_neu, beta_rob, alpha_rob)
 
         print('3. computing objective function, i.e., energy')
@@ -63,9 +70,11 @@ def your_optimization_procedure(domain_omega, spacestep, omega, f, f_dir, f_neu,
 
         print('4. computing parametric gradient')
 
-        a = alpha_compute.compute(omega*340)
-        alpha = a[0] + 1.0j*a[1]
-        Jp = -numpy.real(alpha*u*p)
+        Jp = -numpy.real(Alpha*u*p)
+
+        print(Jp)
+
+        postprocessing._plot_perso_solution(Jp, chi*0)
 
         while ene >= energy[k] and mu > eps0:
             l = 0
@@ -82,7 +91,7 @@ def your_optimization_procedure(domain_omega, spacestep, omega, f, f_dir, f_neu,
 
             print('    c. computing solution of Helmholtz problem, i.e., u')
             alpha_rob = Alpha * chi
-            u = processing.solve_helmholtz(domain_omega, spacestep, omega, f, f_dir, f_neu,
+            u = processing.solve_helmholtz(domain_omega, spacestep, wavenumber, f, f_dir, f_neu,
                                            f_rob, beta_pde, alpha_pde, alpha_dir, beta_neu, beta_rob, alpha_rob)
 
             print('    d. computing objective function, i.e., energy (E)')
@@ -137,7 +146,7 @@ def projector(chi, l, domain):
     new_chi = numpy.zeros((n, m), dtype='float')
     for i in range(n):
         for j in range(m):
-            if preprocessing.is_on_boundary(domain[i,j])=='BOUNDARY':
+            if preprocessing.is_on_boundary(domain[i, j]) == 'BOUNDARY':
                 new_chi[i][j] = max(0, min(chi[i][j]+l, 1))
     return new_chi
 
@@ -148,7 +157,7 @@ def integral(chi):
     n, m = numpy.shape(chi)
     for j in range(m-1):
         for i in range(n-1):
-            res += chi[i][j]**2*spacestep
+            res += chi[i][j]
     return res
 
 
@@ -228,7 +237,8 @@ if __name__ == '__main__':
             if domain_omega[i, j] == _env.NODE_ROBIN:
                 S += 1
     V_0 = 1  # initial volume of the domain
-    V_obj = numpy.sum(numpy.sum(chi)) / S  # constraint on the density
+    # V_obj = numpy.sum(numpy.sum(chi)) / S  # constraint on the density
+    V_obj = numpy.sum(numpy.sum(chi))
     mu = 5  # initial gradient step
     mu1 = 10**(-5)  # parameter of the volume functional
 
@@ -246,7 +256,8 @@ if __name__ == '__main__':
     # ----------------------------------------------------------------------
     # -- compute optimization
     energy = numpy.zeros((100+1, 1), dtype=numpy.float64)
-    chi, energy, u, grad = your_optimization_procedure(domain_omega, spacestep, omega, f, f_dir, f_neu, f_rob, beta_pde, alpha_pde, alpha_dir, beta_neu, beta_rob, alpha_rob, Alpha, mu, chi, V_obj, mu1, V_0)
+    chi, energy, u, grad = your_optimization_procedure(domain_omega, spacestep, wavenumber, f, f_dir, f_neu,
+                                                       f_rob, beta_pde, alpha_pde, alpha_dir, beta_neu, beta_rob, alpha_rob, Alpha, mu, chi, V_obj, mu1, V_0)
     # chi, energy, u, grad = solutions.optimization_procedure(domain_omega, spacestep, wavenumber, f, f_dir, f_neu, f_rob,
     #                    beta_pde, alpha_pde, alpha_dir, beta_neu, beta_rob, alpha_rob,
     #                    Alpha, mu, chi, V_obj, mu1, V_0)
