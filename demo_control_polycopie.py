@@ -94,6 +94,7 @@ def your_optimization_procedure(domain_omega, spacestep, wavenumber, f, f_dir, f
                     l += eps2
                 chi_next = projector(chi-mu*Jp, l, domain_omega)
                 int = integral(chi_next)
+                eps2 /= 2
 
             # print('    c. computing solution of Helmholtz problem, i.e., u')
             alpha_rob = Alpha * chi_next
@@ -179,7 +180,7 @@ if __name__ == '__main__':
     # -- set parameters of the geometry
     N = 40  # number of points along x-axis
     M = 2 * N  # number of points along y-axis
-    level = 0  # level of the fractal : limited by N
+    level = 2  # level of the fractal : limited by N
     spacestep = 1.0 / N  # mesh size
 
     # -- set parameters of the partial differential equation
