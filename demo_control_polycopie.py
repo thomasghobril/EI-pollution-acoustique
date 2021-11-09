@@ -25,10 +25,10 @@ import alpha_compute
 def your_optimization_procedure(domain_omega, spacestep, wavenumber, f, f_dir, f_neu, f_rob,
                                 beta_pde, alpha_pde, alpha_dir, beta_neu, beta_rob, alpha_rob,
                                 Alpha, mu, chi, V_obj, mu1, V_0):
-
+    eps3 = 0.1
     eps1 = 1
     eps2 = 0.03
-    eps0 = 0.00001
+    eps0 = 0.0000001
     """This function return the optimized density.
 
     Parameter:
@@ -104,14 +104,14 @@ def your_optimization_procedure(domain_omega, spacestep, wavenumber, f, f_dir, f
             ene = your_compute_objective_function(
                 domain_omega, u, spacestep, mu1, V_0)
 
-            postprocessing._plot_perso_solution(u, chi*0)
+            postprocessing._plot_perso_solution(u, chi)
             print("Energy = ", ene)
 
             energy[k+1] = ene
 
             if ene < energy[k]:
                 # The step is increased if the energy decreased
-                mu = mu * 1.1
+                mu = mu * (1 + eps3)
             else:
                 # The step is decreased is the energy increased
                 mu = mu / 2
@@ -179,7 +179,7 @@ if __name__ == '__main__':
     # -- set parameters of the geometry
     N = 40  # number of points along x-axis
     M = 2 * N  # number of points along y-axis
-    level = 0  # level of the fractal : limited by N
+    level = 2 # level of the fractal : limited by N
     spacestep = 1.0 / N  # mesh size
 
     # -- set parameters of the partial differential equation
