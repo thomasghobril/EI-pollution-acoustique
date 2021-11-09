@@ -219,7 +219,9 @@ if __name__ == '__main__':
 
     # -- define subset of border on which we put the liner
     # modify this to change liners distribution
-    indices = list(range(1*(len(x)-1)//5, 2*(len(x)-1)//5)).extend(list(range(3*(len(x)-1)//5, 4*(len(x)-1)//5)))
+    indices = list(range(1*(len(x)-1)//5, 2*(len(x)-1)//5))
+    indices.extend(list(range(3*(len(x)-1)//5, 4*(len(x)-1)//5)))
+    print(indices)
 
     # budget : percentage of the border we can cover with liners
     budget = len(indices)/len(x)
