@@ -28,7 +28,7 @@ def your_optimization_procedure(domain_omega, spacestep, omega, f, f_dir, f_neu,
 
     eps1 = 0.01
     eps2 = 0.01
-    eps0 = 0.01
+    eps0 = 0.00001
     """This function return the optimized density.
 
     Parameter:
@@ -43,7 +43,7 @@ def your_optimization_procedure(domain_omega, spacestep, omega, f, f_dir, f_neu,
 
     k = 0
     (M, N) = numpy.shape(domain_omega)
-    numb_iter = 100
+    numb_iter = 20
     energy = numpy.zeros((numb_iter+1, 1), dtype=numpy.float64)
     while k < numb_iter and mu > eps0:
         print('---- iteration number = ', k)
@@ -69,9 +69,8 @@ def your_optimization_procedure(domain_omega, spacestep, omega, f, f_dir, f_neu,
 
         while ene >= energy[k] and mu > eps0:
             l = 0
-
             print('    a. computing gradient descent')
-            chi_next = projector(chi-mu*Jp, l)
+            chi_next = projector(chi-mu*Jp, l, domain_omega)
 
             print('    b. computing projected gradient')
             while abs(integral(chi_next)-V_obj) >= eps1:
@@ -133,12 +132,13 @@ def your_compute_objective_function(domain_omega, u, spacestep, mu1, V_0):
     return J
 
 
-def projector(chi, l):
+def projector(chi, l, domain):
     n, m = numpy.shape(chi)
     new_chi = numpy.zeros((n, m), dtype='float')
     for i in range(n):
         for j in range(m):
-            new_chi[i][j] = max(0, min(chi[i][j]+l, 1))
+            if preprocessing.is_on_boundary(domain[i,j])=='BOUNDARY':
+                new_chi[i][j] = max(0, min(chi[i][j]+l, 1))
     return new_chi
 
 
@@ -148,7 +148,7 @@ def integral(chi):
     n, m = numpy.shape(chi)
     for j in range(m-1):
         for i in range(n-1):
-            res += chi[i][j]**2*spacestep**2
+            res += chi[i][j]**2*spacestep
     return res
 
 
@@ -158,9 +158,9 @@ if __name__ == '__main__':
     # -- Fell free to modify the function call in this cell.
     # ----------------------------------------------------------------------
     # -- set parameters of the geometry
-    N = 70  # number of points along x-axis
+    N = 20  # number of points along x-axis
     M = 2 * N  # number of points along y-axis
-    level = 2  # level of the fractal : limited by N
+    level = 0  # level of the fractal : limited by N
     spacestep = 1.0 / N  # mesh size
 
     # -- set parameters of the partial differential equation
