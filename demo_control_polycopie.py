@@ -30,11 +30,7 @@ def your_optimization_procedure(domain_omega, spacestep, wavenumber, f, f_dir, f
                                 Alpha, mu, chi, V_obj, mu1, V_0):
 
     eps1 = 0.01
-<<<<<<< HEAD
     eps2_0 = 30
-=======
-    eps2_0 = 100
->>>>>>> 19aa04cd82467e46de2db9a664af96ea5f90f536
     eps2 = eps2_0
     eps0 = 0.00001
     """This function return the optimized density.
@@ -107,13 +103,11 @@ def your_optimization_procedure(domain_omega, spacestep, wavenumber, f, f_dir, f
                     l += eps2
                 print(l)
                 chi_next = projector(chi-mu*Jp, l, domain_omega)
+                int = integral(chi_next)
                 eps2 /= 2
-<<<<<<< HEAD
-=======
                 # print(V_obj, int, eps2, l)
                 # postprocessing._plot_perso_solution(chi_next, chi*0)
 
->>>>>>> 19aa04cd82467e46de2db9a664af96ea5f90f536
             postprocessing._plot_perso_solution(chi_next, chi*0)
             # print('    c. computing solution of Helmholtz problem, i.e., u')
             alpha_rob = Alpha * chi_next
