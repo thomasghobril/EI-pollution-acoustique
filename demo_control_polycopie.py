@@ -84,7 +84,7 @@ def your_optimization_procedure(domain_omega, spacestep, wavenumber, f, f_dir, f
             # postprocessing._plot_perso_solution(chi_next, chi*0)
 
             # print('    b. computing projected gradient')
-            eps2=10
+            eps2=100
             int = integral(chi_next)
             while abs(int-V_obj) >= eps1:
                 if int > V_obj:
@@ -179,9 +179,9 @@ if __name__ == '__main__':
     # -- Fell free to modify the function call in this cell.
     # ----------------------------------------------------------------------
     # -- set parameters of the geometry
-    N = 40  # number of points along x-axis
+    N = 60  # number of points along x-axis
     M = 2 * N  # number of points along y-axis
-    level = 0 # level of the fractal : limited by N
+    level = 2 # level of the fractal : limited by N
     spacestep = 1.0 / N  # mesh size
 
     # -- set parameters of the partial differential equation
@@ -221,8 +221,8 @@ if __name__ == '__main__':
 
     # -- define subset of border on which we put the liner
     # modify this to change liners distribution
-    indices = list(range(1*(len(x)-1)//5, 2*(len(x)-1)//5))
-    indices.extend(list(range(3*(len(x)-1)//5, 4*(len(x)-1)//5)))
+    indices = list(range(int(1.5*(len(x)-1)//5), int(3.5*(len(x)-1)//5)))
+    #indices.extend(list(range(3*(len(x)-1)//5, 4*(len(x)-1)//5)))
     print(indices)
 
     # budget : percentage of the border we can cover with liners
@@ -253,7 +253,7 @@ if __name__ == '__main__':
     V_0 = 1  # initial volume of the domain
     # V_obj = numpy.sum(numpy.sum(chi)) / S  # constraint on the density
     V_obj = numpy.sum(numpy.sum(chi))
-    mu = 5  # initial gradient step
+    mu = 10  # initial gradient step
     mu1 = 10**(-5)  # parameter of the volume functional
 
     # ----------------------------------------------------------------------
