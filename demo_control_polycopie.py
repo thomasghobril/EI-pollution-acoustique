@@ -28,11 +28,11 @@ import random
 def your_optimization_procedure(domain_omega, spacestep, wavenumber, f, f_dir, f_neu, f_rob,
                                 beta_pde, alpha_pde, alpha_dir, beta_neu, beta_rob, alpha_rob,
                                 Alpha, mu, chi, V_obj, mu1, V_0):
-
     eps1 = 0.01
-    eps2_0 = 30
-    eps2 = eps2_0
-    eps0 = 0.00001
+    eps2_0 = 30*spacestep*40
+    eps2 = eps2_0*spacestep*40
+    eps0 = 0.00001*spacestep*40
+    eps3 = 0.1*spacestep*40
     """This function return the optimized density.
 
     Parameter:
@@ -47,7 +47,7 @@ def your_optimization_procedure(domain_omega, spacestep, wavenumber, f, f_dir, f
 
     k = 0
     (M, N) = numpy.shape(domain_omega)
-    numb_iter = 20
+    numb_iter = 10
     energy = numpy.zeros((numb_iter+1, 1), dtype=numpy.float64)
 
     ##########################################################
@@ -146,7 +146,7 @@ def your_optimization_procedure(domain_omega, spacestep, wavenumber, f, f_dir, f
             energy[k+1] = ene
             if ene < energy[k]:
                 # The step is increased if the energy decreased
-                mu = mu * 1.1
+                mu = mu * (1+eps3)
             else:
                 # The step is decreased is the energy increased
                 mu = mu / 2
@@ -211,12 +211,6 @@ if __name__ == '__main__':
     # ----------------------------------------------------------------------
     # -- Fell free to modify the function call in this cell.
     # ----------------------------------------------------------------------
-    # -- set parameters of the geometry
-    N = 40  # number of points along x-axis
-    M = 2 * N  # number of points along y-axis
-    level = 2  # level of the fractal : limited by N
-    spacestep = 1.0 / N  # mesh size
-
     # -- set parameters of the partial differential equation
     kx = -1.0
     ky = -1.0
@@ -224,6 +218,13 @@ if __name__ == '__main__':
     wavenumber = numpy.sqrt(kx**2 + ky**2)  # wavenumber
     wavenumber = 10.0
     omega = wavenumber*c
+
+    # -- set parameters of the geometry
+    N = max(int(7.*wavenumber),20) # number of points along x-axis
+    M = 2 * N  # number of points along y-axis
+    level = 2  # level of the fractal : limited by N
+    spacestep = 1.0 / N  # mesh size
+
     # ----------------------------------------------------------------------
     # -- Do not modify this cell, these are the values that you will be assessed against.
     # ----------------------------------------------------------------------
@@ -298,7 +299,7 @@ if __name__ == '__main__':
     # V_obj = numpy.sum(numpy.sum(chi))
     mu = 0.5  # initial gradient step
     mu1 = 10**(-5)  # parameter of the volume functional
-    print(V_obj,integral(chi))
+
     # ----------------------------------------------------------------------
     # -- Do not modify this cell, these are the values that you will be assessed against.
     # ----------------------------------------------------------------------
@@ -322,7 +323,6 @@ if __name__ == '__main__':
 
     chin = chi.copy()
     un = u.copy()
-    print(integral(chi),"vs ", numpy.sum(numpy.sum(chi))/S)
 
     # -- plot chi, u, and energy
     postprocessing._plot_uncontroled_solution(u0, chi0)
