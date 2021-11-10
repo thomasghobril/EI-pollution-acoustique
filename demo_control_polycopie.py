@@ -24,13 +24,60 @@ import pdb
 
 import random
 
+######################################################
+############ Distributions initiales #################
+######################################################
+
+
+def distributions_init(x, budget):
+    distributions = []
+    budget *= 10
+
+    ### Distribution en 1 bloc ###
+    distributions.append(
+        list(range(int(2*(len(x)-1)//10), int((2+budget)*(len(x)-1)//10))))
+    distributions.append(
+        list(range(int(5*(len(x)-1)//10), int((5+budget)*(len(x)-1)//10))))
+
+    ### Distribution en 2 blocs ###
+    add = list(range(int(2*(len(x)-1)//10), int((2+budget/2)*(len(x)-1)//10)))
+    add.extend(list(range(int((2+2*budget)*(len(x)-1)//10),
+                          int((2+2.5*budget)*(len(x)-1)//10))))
+    distributions.append(add)
+    # distributions.append((list(range(int(2*(len(x)-1)//10), int((2+budget/2)*(len(x)-1)//10)))).extend(
+    #     list(range(int((2+2*budget)*(len(x)-1)//10), int((2+2.5*budget)*(len(x)-1)//10)))))
+    add = list(range((int(len(x)-1)//10), int((1+budget/2)*(len(x)-1)//10)))
+    add.extend(list(range(int((1+2*budget)*(len(x)-1)//10),
+                          int((1+2.5*budget)*(len(x)-1)//10))))
+    distributions.append(add)
+    # distributions.append((list(range((int(len(x)-1)//10), int((1+budget/2)*(len(x)-1)//10)))).extend(
+    #     list(range(int((1+3*budget)*(len(x)-1)//10), int((1+3.5*budget)*(len(x)-1)//10)))))
+    add = list(range(int((5-budget)*(len(x)-1)//10),
+                     int((5-budget/2)*(len(x)-1)//10)))
+    add.extend(
+        list(range(int((5+budget/2)*(len(x)-1)//10), int((5+budget)*(len(x)-1)//10))))
+    distributions.append(add)
+    # distributions.append((list(range(int((5-budget)*(len(x)-1)//10), int((5-budget/2)*(len(x)-1)//10))
+    #                            ).extend(list(range(int((5+budget/2)*(len(x)-1)//10), int((5+budget)*(len(x)-1)//10))))))
+
+    ### Distribution en 3 blocs ###
+    add = list(range(int(0*(len(x)-1)//10), int((budget/3)*(len(x)-1)//10)))
+    add.extend(list(range(int(
+        4*(len(x)-1)//10), int((4+budget/3)*(len(x)-1)//10))))
+    add.extend(list(range(int((10-budget/3)*(len(x)-1)//10), int(len(x)-1))))
+    distributions.append(add)
+    '''distributions.append(((list(range(int(0*(len(x)-1)//10), int((budget/3)*(len(x)-1)//10)))).extend(list(range(int(
+        4*(len(x)-1)//10), int((4+budget/3)*(len(x)-1)//10))))).extend(list(range(int((10-budget/3)*(len(x)-1)//10), int(len(x)-1)))))
+'''
+    return distributions
+
 
 def your_optimization_procedure(domain_omega, spacestep, wavenumber, f, f_dir, f_neu, f_rob,
                                 beta_pde, alpha_pde, alpha_dir, beta_neu, beta_rob, alpha_rob,
                                 Alpha, mu, chi, V_obj, mu1, V_0):
 
     eps1 = 0.01
-    eps2_0 = 30
+    eps2_0 = 550
     eps2 = eps2_0
     eps0 = 0.00001
     """This function return the optimized density.
@@ -82,7 +129,7 @@ def your_optimization_procedure(domain_omega, spacestep, wavenumber, f, f_dir, f
 
         Jp[1:, :] = Jp[:-1, :]
 
-        postprocessing._plot_perso_solution(Jp, chi*0)
+        #postprocessing._plot_perso_solution(Jp, chi*0)
 
         while ene >= energy[k] and mu > eps0:
             l = 0
@@ -93,17 +140,16 @@ def your_optimization_procedure(domain_omega, spacestep, wavenumber, f, f_dir, f
 
             # print('    b. computing projected gradient')
 
-            int = integral(chi_next)
+            int0 = integral(chi_next)
             eps2 = eps2_0
 
-            while abs(int-V_obj) >= eps1:
-                if int > V_obj:
+            while abs(int0-V_obj) >= eps1:
+                if int0 > V_obj:
                     l -= eps2
                 else:
                     l += eps2
-                print(l)
                 chi_next = projector(chi-mu*Jp, l, domain_omega)
-                int = integral(chi_next)
+                int0 = integral(chi_next)
                 eps2 /= 2
                 # print(V_obj, int, eps2, l)
                 # postprocessing._plot_perso_solution(chi_next, chi*0)
@@ -192,8 +238,10 @@ if __name__ == '__main__':
     # -- set parameters of the geometry
     N = 40  # number of points along x-axis
     M = 2 * N  # number of points along y-axis
-    level = 2  # level of the fractal : limited by N
+    level = 0  # level of the fractal : limited by N
     spacestep = 1.0 / N  # mesh size
+
+    budget = 0.3
 
     # -- set parameters of the partial differential equation
     kx = -1.0
@@ -238,73 +286,75 @@ if __name__ == '__main__':
     # indices.sort()
 
     # -- define subset of border on which we put the liner
-    # modify this to change liners distribution
-
-    indices = list(range(2*(len(x)-1)//10, 4*(len(x)-1)//10))
-
-    indices.extend(list(range(6*(len(x)-1)//10, 8*(len(x)-1)//10)))
-    # print(indices)
-
+    list_indice = distributions_init(x, budget)
     # budget : percentage of the border we can cover with liners
-    budget = len(indices)/len(x)
+    # print(list_indice)
+    energy_final = []
 
-    x_sub = [x[k] for k in indices]
-    y_sub = [y[k] for k in indices]
+    for o in range(len(list_indice)):
+        indices = list_indice[o]
+        x_sub = [x[k] for k in indices]
+        y_sub = [y[k] for k in indices]
 
     # -- define material density matrix
-    chi = preprocessing._set_chi(M, N, x_sub, y_sub)
-    chi = preprocessing.set2zero(chi, domain_omega)
+        chi = preprocessing._set_chi(M, N, x_sub, y_sub)
+        chi = preprocessing.set2zero(chi, domain_omega)
 
     # -- define absorbing material
-    al = alpha_compute.compute(wavenumber*340)
-    Alpha = al[0] + 1.0j*al[1]
+        al = alpha_compute.compute(wavenumber*340)
+        Alpha = al[0] + 1.0j*al[1]
 
     # -- this is the function you have written during your project
     #import compute_alpha
     #Alpha = compute_alpha.compute_alpha(...)
-    alpha_rob = Alpha * chi
+        alpha_rob = Alpha * chi
 
     # -- set parameters for optimization
-    S = 0  # surface of the fractal
-    for i in range(0, M):
-        for j in range(0, N):
-            if domain_omega[i, j] == _env.NODE_ROBIN:
-                S += 1
-    V_0 = 1  # initial volume of the domain
+        S = 0  # surface of the fractal
+        for i in range(0, M):
+            for j in range(0, N):
+                if domain_omega[i, j] == _env.NODE_ROBIN:
+                    S += 1
+        V_0 = 1  # initial volume of the domain
     # V_obj = numpy.sum(numpy.sum(chi)) / S  # constraint on the density
-    V_obj = numpy.sum(numpy.sum(chi))
-    mu = 1000000  # initial gradient step
-    mu1 = 10**(-5)  # parameter of the volume functional
+        V_obj = numpy.sum(numpy.sum(chi))
+        mu = 0.3  # initial gradient step
+        mu1 = 10**(-5)  # parameter of the volume functional
 
     # ----------------------------------------------------------------------
     # -- Do not modify this cell, these are the values that you will be assessed against.
     # ----------------------------------------------------------------------
     # -- compute finite difference solution
-    u = processing.solve_helmholtz(domain_omega, spacestep, wavenumber, f, f_dir, f_neu, f_rob,
-                                   beta_pde, alpha_pde, alpha_dir, beta_neu, beta_rob, alpha_rob)
-    chi0 = chi.copy()
-    u0 = u.copy()
+        u = processing.solve_helmholtz(domain_omega, spacestep, wavenumber, f, f_dir, f_neu, f_rob,
+                                       beta_pde, alpha_pde, alpha_dir, beta_neu, beta_rob, alpha_rob)
+        chi0 = chi.copy()
+        u0 = u.copy()
 
     # ----------------------------------------------------------------------
     # -- Fell free to modify the function call in this cell.
     # ----------------------------------------------------------------------
     # -- compute optimization
-    energy = numpy.zeros((100+1, 1), dtype=numpy.float64)
-    chi, energy, u, grad = your_optimization_procedure(domain_omega, spacestep, wavenumber, f, f_dir, f_neu,
-                                                       f_rob, beta_pde, alpha_pde, alpha_dir, beta_neu, beta_rob, alpha_rob, Alpha, mu, chi, V_obj, mu1, V_0)
+        energy = numpy.zeros((100+1, 1), dtype=numpy.float64)
+        chi, energy, u, grad = your_optimization_procedure(domain_omega, spacestep, wavenumber, f, f_dir, f_neu,
+                                                           f_rob, beta_pde, alpha_pde, alpha_dir, beta_neu, beta_rob, alpha_rob, Alpha, mu, chi, V_obj, mu1, V_0)
     # chi, energy, u, grad = solutions.optimization_procedure(domain_omega, spacestep, wavenumber, f, f_dir, f_neu, f_rob,
     #                    beta_pde, alpha_pde, alpha_dir, beta_neu, beta_rob, alpha_rob,
     #                    Alpha, mu, chi, V_obj, mu1, V_0)
     # --- en of optimization
 
-    chin = chi.copy()
-    un = u.copy()
+        chin = chi.copy()
+        un = u.copy()
 
     # -- plot chi, u, and energy
-    postprocessing._plot_uncontroled_solution(u0, chi0)
-    postprocessing._plot_controled_solution(un, chin)
-    err = un - u0
-    postprocessing._plot_error(err)
-    postprocessing._plot_energy_history(energy)
-
+        mini = energy[0]
+        for p in range(len(energy)):
+            if energy[p] > 0 and energy[p] < mini:
+                mini = energy[p]
+        energy_final.append(mini)
+        postprocessing._plot_uncontroled_solution(u0, chi0)
+        postprocessing._plot_controled_solution(un, chin)
+        err = un - u0
+        postprocessing._plot_error(err)
+        postprocessing._plot_energy_history(energy)
+    print(energy_final)
     print('End.')
