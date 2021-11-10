@@ -29,14 +29,9 @@ def your_optimization_procedure(domain_omega, spacestep, wavenumber, f, f_dir, f
                                 beta_pde, alpha_pde, alpha_dir, beta_neu, beta_rob, alpha_rob,
                                 Alpha, mu, chi, V_obj, mu1, V_0):
 
-<<<<<<< HEAD
     eps1 = 0.01
     eps2_0 = 100
     eps2 = eps2_0
-=======
-    eps1 = 0.5
-    eps2 = 0.01
->>>>>>> afc071441d8a280826a4be445258f3b2c1549285
     eps0 = 0.00001
     """This function return the optimized density.
 
@@ -87,11 +82,6 @@ def your_optimization_procedure(domain_omega, spacestep, wavenumber, f, f_dir, f
 
         Jp[1:, :] = Jp[:-1, :]
 
-<<<<<<< HEAD
-=======
-        postprocessing._plot_perso_solution(Jp, chi*0)
-
->>>>>>> afc071441d8a280826a4be445258f3b2c1549285
         while ene >= energy[k] and mu > eps0:
             l = 0
             # print('    a. computing gradient descent')
@@ -111,7 +101,6 @@ def your_optimization_procedure(domain_omega, spacestep, wavenumber, f, f_dir, f
                     l += eps2
                 print(l)
                 chi_next = projector(chi-mu*Jp, l, domain_omega)
-<<<<<<< HEAD
                 int = integral(chi_next)
                 eps2 /= 2
                 # print(V_obj, int, eps2, l)
@@ -119,10 +108,6 @@ def your_optimization_procedure(domain_omega, spacestep, wavenumber, f, f_dir, f
 
             postprocessing._plot_perso_solution(chi_next, chi*0)
             # print('    c. computing solution of Helmholtz problem, i.e., u')
-=======
-
-            print('    c. computing solution of Helmholtz problem, i.e., u')
->>>>>>> afc071441d8a280826a4be445258f3b2c1549285
             alpha_rob = Alpha * chi_next
             u = processing.solve_helmholtz(domain_omega, spacestep, wavenumber, f, f_dir, f_neu,
                                            f_rob, beta_pde, alpha_pde, alpha_dir, beta_neu, beta_rob, alpha_rob)
