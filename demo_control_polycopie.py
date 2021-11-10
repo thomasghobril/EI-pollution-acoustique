@@ -20,6 +20,7 @@ import processing
 import postprocessing
 import alpha_compute
 import pdb
+import random
 #import solutions
 
 
@@ -31,6 +32,10 @@ def your_optimization_procedure(domain_omega, spacestep, wavenumber, f, f_dir, f
     eps2_0 = 30
     eps2 = eps2_0
     eps0 = 0.00001
+    eps_mu = 0.01  # (en %)
+    mus = [numpy.sqrt(mu), mu, mu**2]
+    mu_init = mus[0]
+
     """This function return the optimized density.
 
     Parameter:
@@ -42,90 +47,110 @@ def your_optimization_procedure(domain_omega, spacestep, wavenumber, f, f_dir, f
         the domain (not really important for our case, you can set it up to 0);
         V_0: float, volume constraint on the domain (you can it up to 1).
     """
-
-    k = 0
+    mu_iter = 0
     (M, N) = numpy.shape(domain_omega)
+    energy_array = numpy.array([])
     numb_iter = 20
     energy = numpy.zeros((numb_iter+1, 1), dtype=numpy.float64)
-    while k < numb_iter and mu > eps0:
-        print('---- iteration number = ', k)
-        print('1. computing solution of Helmholtz problem, i.e., u')
+    while mu_iter < numb_iter and abs(mus[-1]-mus[-2])/mus[-1] > eps_mu:
+        k = 0
+        print('-------mu_iter =', mu_iter, ' -- mu =', mu_init)
+        mu = mu_init
+        while k < numb_iter and mu > eps0:
+            print('---- iteration number = ', k)
+            print('1. computing solution of Helmholtz problem, i.e., u')
 
-        u = processing.solve_helmholtz(domain_omega, spacestep, wavenumber, f, f_dir, f_neu,
-                                       f_rob, beta_pde, alpha_pde, alpha_dir, beta_neu, beta_rob, alpha_rob)
-
-        # p = processing.solve_helmholtz(domain_omega, spacestep, wavenumber, -2 * numpy.conj(u), numpy.zeros(
-        #     (M, N)), f_neu, f_rob, beta_pde, alpha_pde, alpha_dir, beta_neu, beta_rob, alpha_rob)
-
-        # # ubis = u/numpy.max(numpy.abs(u))
-        # postprocessing._plot_perso_solution(p, chi)
-
-        # print('2. computing solution of adjoint problem, i.e., p')
-        p = processing.solve_helmholtz(domain_omega, spacestep, wavenumber, -2 * numpy.conj(u), numpy.zeros(
-            (M, N)), f_neu, f_rob, beta_pde, alpha_pde, alpha_dir, beta_neu, beta_rob, alpha_rob)
-
-        # print('3. computing objective function, i.e., energy')
-
-        ene = your_compute_objective_function(
-            domain_omega, u, spacestep, mu1, V_0)
-
-        print('1st energy = ', ene)
-
-        energy[k] = ene
-
-        # print('4. computing parametric gradient')
-
-        Jp = -numpy.real(Alpha*u*p)
-
-        Jp[1:, :] = Jp[:-1, :]
-
-        postprocessing._plot_perso_solution(Jp, chi*0)
-
-        while ene >= energy[k] and mu > eps0:
-            l = 0
-            # print('    a. computing gradient descent')
-            chi_next = projector(chi-mu*Jp, l, domain_omega)
-
-            # postprocessing._plot_perso_solution(chi_next, chi*0)
-
-            # print('    b. computing projected gradient')
-
-            int = integral(chi_next)
-            eps2 = eps2_0
-
-            while abs(int-V_obj) >= eps1:
-                if int > V_obj:
-                    l -= eps2
-                else:
-                    l += eps2
-                print(l)
-                chi_next = projector(chi-mu*Jp, l, domain_omega)
-                eps2 /= 2
-            postprocessing._plot_perso_solution(chi_next, chi*0)
-            # print('    c. computing solution of Helmholtz problem, i.e., u')
-            alpha_rob = Alpha * chi_next
             u = processing.solve_helmholtz(domain_omega, spacestep, wavenumber, f, f_dir, f_neu,
                                            f_rob, beta_pde, alpha_pde, alpha_dir, beta_neu, beta_rob, alpha_rob)
 
-            # print('    d. computing objective function, i.e., energy (E)')
+            # p = processing.solve_helmholtz(domain_omega, spacestep, wavenumber, -2 * numpy.conj(u), numpy.zeros(
+            #     (M, N)), f_neu, f_rob, beta_pde, alpha_pde, alpha_dir, beta_neu, beta_rob, alpha_rob)
+
+            # # ubis = u/numpy.max(numpy.abs(u))
+            # postprocessing._plot_perso_solution(p, chi)
+
+            # print('2. computing solution of adjoint problem, i.e., p')
+            p = processing.solve_helmholtz(domain_omega, spacestep, wavenumber, -2 * numpy.conj(u), numpy.zeros(
+                (M, N)), f_neu, f_rob, beta_pde, alpha_pde, alpha_dir, beta_neu, beta_rob, alpha_rob)
+
+            # print('3. computing objective function, i.e., energy')
+
             ene = your_compute_objective_function(
                 domain_omega, u, spacestep, mu1, V_0)
 
-            # postprocessing._plot_perso_solution(u, chi*0)
-            print("Energy = ", ene)
+            #print('1st energy = ', ene)
 
-            energy[k+1] = ene
-            if ene < energy[k]:
-                # The step is increased if the energy decreased
-                mu = mu * 1.1
+            energy[k] = ene
+
+            # print('4. computing parametric gradient')
+
+            Jp = -numpy.real(Alpha*u*p)
+
+            Jp[1:, :] = Jp[:-1, :]
+
+            postprocessing._plot_perso_solution(Jp, chi*0)
+
+            while ene >= energy[k] and mu > eps0:
+                l = 0
+                # print('    a. computing gradient descent')
+                chi_next = projector(chi-mu*Jp, l, domain_omega)
+
+                # postprocessing._plot_perso_solution(chi_next, chi*0)
+
+                # print('    b. computing projected gradient')
+
+                int = integral(chi_next)
+                eps2 = eps2_0
+
+                while abs(int-V_obj) >= eps1:
+                    if int > V_obj:
+                        l -= eps2
+                    else:
+                        l += eps2
+                    chi_next = projector(chi-mu*Jp, l, domain_omega)
+                    eps2 /= 2
+                    int = integral(chi_next)
+                postprocessing._plot_perso_solution(chi_next, chi*0)
+                # print('    c. computing solution of Helmholtz problem, i.e., u')
+                alpha_rob = Alpha * chi_next
+                u = processing.solve_helmholtz(domain_omega, spacestep, wavenumber, f, f_dir, f_neu,
+                                               f_rob, beta_pde, alpha_pde, alpha_dir, beta_neu, beta_rob, alpha_rob)
+
+                # print('    d. computing objective function, i.e., energy (E)')
+                ene = your_compute_objective_function(
+                    domain_omega, u, spacestep, mu1, V_0)
+
+                # postprocessing._plot_perso_solution(u, chi*0)
+                #print("Energy = ", ene)
+
+                energy[k+1] = ene
+                if ene < energy[k]:
+                    # The step is increased if the energy decreased
+                    mu = mu * 1.1
+                else:
+                    # The step is decreased is the energy increased
+                    mu = mu / 2
+            chi = chi_next
+            k += 1
+        energy_array = numpy.append(energy_array, ene)
+        if mu_iter <= 1:
+            mu_init *= mu_init
+        else:
+            if ((energy_array[-3]-energy_array[-2])/(mus[-3]-mus[-2]))*(energy_array[-2]-energy_array[-1])/(mus[-2]-mus[-1]) < 0:
+                mu_init *= 0.5
+            elif len(mus) == 3 and energy_array[-3] < energy_array[-2]:
+                mu_init = mus[0]/2
+            elif (energy_array[-2] - energy_array[-1])/(mus[-2]-mus[-1]) < 0:
+                mu_init *= 1.1
             else:
-                # The step is decreased is the energy increased
-                mu = mu / 2
-        chi = chi_next
-        k += 1
-
+                mu_init *= 0.5
+            mus.append(mu_init)
+        mu_iter += 1
+        print('Energy =', ene)
     grad = 0
     print('end. computing solution of Helmholtz problem, i.e., u')
+    print('Energy min =', numpy.min(energy_array))
+    print('mu =', mus[-1])
 
     return chi, energy, u, grad
 
@@ -226,7 +251,12 @@ if __name__ == '__main__':
     # -- define subset of border on which we put the liner
     # modify this to change liners distribution
     indices = list(range(0*(len(x)-1)//10, 4*(len(x)-1)//10))
-    # indices.extend(list(range(3*(len(x)-1)//5, 4*(len(x)-1)//5)))
+    # indices.extend(list(range(3*(len(x)-1)//10, 5*(len(x)-1)//10)))
+    # indices = []
+    # for i in range(len(x)//4):
+    #     a = random.randint(1, len(x)-2)
+    #     if a not in indices:
+    #         indices.append(a)
     # print(indices)
 
     # budget : percentage of the border we can cover with liners
@@ -257,7 +287,7 @@ if __name__ == '__main__':
     V_0 = 1  # initial volume of the domain
     # V_obj = numpy.sum(numpy.sum(chi)) / S  # constraint on the density
     V_obj = numpy.sum(numpy.sum(chi))
-    mu = 20  # initial gradient step
+    mu = 100  # initial gradient step
     mu1 = 10**(-5)  # parameter of the volume functional
 
     # ----------------------------------------------------------------------
