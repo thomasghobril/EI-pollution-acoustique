@@ -112,17 +112,17 @@ def your_optimization_procedure(domain_omega, spacestep, wavenumber, f, f_dir, f
 
             # print('    b. computing projected gradient')
 
-            int = integral(chi_next)
+            int0 = integral(chi_next)
             eps2 = eps2_0
 
-            while abs(int-V_obj) >= eps1:
-                if int > V_obj:
+            while abs(int0-V_obj) >= eps1:
+                if int0 > V_obj:
                     l -= eps2
                 else:
                     l += eps2
                 # print(l)
                 chi_next = projector(chi-mu*Jp, l, domain_omega)
-                int = integral(chi_next)
+                int0 = integral(chi_next)
                 eps2 /= 2
                 # print(V_obj, int, eps2, l)
                 # postprocessing._plot_perso_solution(chi_next, chi*0)
@@ -261,9 +261,9 @@ if __name__ == '__main__':
 
     indices = list(range(6*(len(x)-1)//10, 10*(len(x)-1)//10))
 
-    indices = numpy.array(indices)
-    indices -= 5
-    indices = indices.tolist()
+    # indices = numpy.array(indices)
+    # indices -= 5
+    # indices = indices.tolist()
 
     # indices.extend(list(range(6*(len(x)-1)//10, 8*(len(x)-1)//10)))
     # print(indices)
