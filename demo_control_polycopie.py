@@ -259,7 +259,11 @@ if __name__ == '__main__':
     # -- define subset of border on which we put the liner
     # modify this to change liners distribution
 
-    indices = list(range(0*(len(x)-1)//10, 4*(len(x)-1)//10))
+    indices = list(range(6*(len(x)-1)//10, 10*(len(x)-1)//10))
+
+    indices = numpy.array(indices)
+    indices -= 5
+    indices = indices.tolist()
 
     # indices.extend(list(range(6*(len(x)-1)//10, 8*(len(x)-1)//10)))
     # print(indices)
