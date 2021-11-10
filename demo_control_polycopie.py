@@ -348,12 +348,14 @@ def valeur_finale_energie(energy):
 
 import matplotlib.pyplot as plt
 
-L_wavenumber
+L_wavenumber= numpy.linspace(5,10,5)
 L_Energy=[]
 for wavenumber in L_wavenumber:
     energy=your_optimization_procedure(domain_omega, spacestep, wavenumber, f, f_dir, f_neu,
                                                     f_rob, beta_pde, alpha_pde, alpha_dir, beta_neu, beta_rob, alpha_rob, Alpha, mu, chi, V_obj, mu1, V_0)[2]
     L_Energy.append(valeur_finale_energie(energy))  
+
+
 L_omega=[w*340 for w in L_wavenumber]
 plt.plot(L_omega,L_Energy)
 plt.xlabel('Omega')
