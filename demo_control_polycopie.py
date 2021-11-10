@@ -22,6 +22,8 @@ import alpha_compute
 import pdb
 #import solutions
 
+import random
+
 
 def your_optimization_procedure(domain_omega, spacestep, wavenumber, f, f_dir, f_neu, f_rob,
                                 beta_pde, alpha_pde, alpha_dir, beta_neu, beta_rob, alpha_rob,
@@ -29,7 +31,7 @@ def your_optimization_procedure(domain_omega, spacestep, wavenumber, f, f_dir, f
 
 <<<<<<< HEAD
     eps1 = 0.01
-    eps2_0 = 60
+    eps2_0 = 100
     eps2 = eps2_0
 =======
     eps1 = 0.5
@@ -52,6 +54,7 @@ def your_optimization_procedure(domain_omega, spacestep, wavenumber, f, f_dir, f
     (M, N) = numpy.shape(domain_omega)
     numb_iter = 20
     energy = numpy.zeros((numb_iter+1, 1), dtype=numpy.float64)
+
     while k < numb_iter and mu > eps0:
         print('---- iteration number = ', k)
         print('1. computing solution of Helmholtz problem, i.e., u')
@@ -111,7 +114,9 @@ def your_optimization_procedure(domain_omega, spacestep, wavenumber, f, f_dir, f
 <<<<<<< HEAD
                 int = integral(chi_next)
                 eps2 /= 2
-                print(int, V_obj)
+                # print(V_obj, int, eps2, l)
+                # postprocessing._plot_perso_solution(chi_next, chi*0)
+
             postprocessing._plot_perso_solution(chi_next, chi*0)
             # print('    c. computing solution of Helmholtz problem, i.e., u')
 =======
@@ -238,10 +243,19 @@ if __name__ == '__main__':
     # -- initialize
     alpha_rob[:, :] = - wavenumber * 1j
 
+    # indices = []
+    # for i in range(int(len(x)*2/5)):
+    #     a = random.randint(0, len(x)-1)
+    #     if a not in indices:
+    #         indices.append(a)
+    # indices.sort()
+
     # -- define subset of border on which we put the liner
     # modify this to change liners distribution
-    indices = list(range(0*(len(x)-1)//10, 4*(len(x)-1)//10))
-    # indices.extend(list(range(3*(len(x)-1)//5, 4*(len(x)-1)//5)))
+
+    indices = list(range(2*(len(x)-1)//10, 4*(len(x)-1)//10))
+
+    indices.extend(list(range(6*(len(x)-1)//10, 8*(len(x)-1)//10)))
     # print(indices)
 
     # budget : percentage of the border we can cover with liners
@@ -272,7 +286,7 @@ if __name__ == '__main__':
     V_0 = 1  # initial volume of the domain
     # V_obj = numpy.sum(numpy.sum(chi)) / S  # constraint on the density
     V_obj = numpy.sum(numpy.sum(chi))
-    mu = 20  # initial gradient step
+    mu = 1000000  # initial gradient step
     mu1 = 10**(-5)  # parameter of the volume functional
 
     # ----------------------------------------------------------------------
