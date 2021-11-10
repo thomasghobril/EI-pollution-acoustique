@@ -103,7 +103,7 @@ def your_optimization_procedure(domain_omega, spacestep, wavenumber, f, f_dir, f
 
         Jp[1:, :] = Jp[:-1, :]
 
-        postprocessing._plot_perso_solution(Jp, chi*0)
+        postprocessing._plot_perso_solution(chi, chi*0)
 
         while ene >= energy[k] and mu > eps0:
             l = 0
@@ -117,8 +117,8 @@ def your_optimization_procedure(domain_omega, spacestep, wavenumber, f, f_dir, f
             int0 = integral(chi_next)
             eps2 = eps2_0
 
+            postprocessing._plot_perso_solution(chi_next, chi*0)
             while abs(int0-V_obj) >= eps1:
-                print(int0,V_obj)
                 if int0 > V_obj:
                     l -= eps2
                 else:
@@ -126,11 +126,12 @@ def your_optimization_procedure(domain_omega, spacestep, wavenumber, f, f_dir, f
                 # print(l)
                 chi_next = projector(chi-mu*Jp, l, domain_omega)
                 int0 = integral(chi_next)
-                eps2 /= 2
-                # print(V_obj, int, eps2, l)
+                eps2 = numpy.exp(0.1*abs(int0-V_obj))-1 + 0.0001
+                print("Comparaison budget :", V_obj, int0)
                 # postprocessing._plot_perso_solution(chi_next, chi*0)
 
-            postprocessing._plot_perso_solution(chi_next, chi*0)
+            print("Fini")
+
             # print('    c. computing solution of Helmholtz problem, i.e., u')
             alpha_rob = Alpha * chi_next
             u = processing.solve_helmholtz(domain_omega, spacestep, wavenumber, f, f_dir, f_neu,
@@ -220,7 +221,8 @@ if __name__ == '__main__':
     omega = wavenumber*c
 
     # -- set parameters of the geometry
-    N = max(int(7.*wavenumber),20) # number of points along x-axis
+    # N = max(int(7.*wavenumber),20) # number of points along x-axis
+    N = 70
     M = 2 * N  # number of points along y-axis
     level = 2  # level of the fractal : limited by N
     spacestep = 1.0 / N  # mesh size
@@ -294,7 +296,7 @@ if __name__ == '__main__':
             if domain_omega[i, j] == _env.NODE_ROBIN:
                 S += 1
     V_0 = 1  # initial volume of the domain
-    V_obj = integral(chi) 
+    V_obj = integral(chi)
     # numpy.sum(numpy.sum(chi)) / S  # constraint on the density
     # V_obj = numpy.sum(numpy.sum(chi))
     mu = 0.5  # initial gradient step
