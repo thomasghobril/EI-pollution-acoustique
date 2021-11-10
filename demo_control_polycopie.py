@@ -114,17 +114,18 @@ def your_optimization_procedure(domain_omega, spacestep, wavenumber, f, f_dir, f
 
             # print('    b. computing projected gradient')
 
-            int = integral(chi_next)
+            int0 = integral(chi_next)
             eps2 = eps2_0
 
-            while abs(int-V_obj) >= eps1:
-                if int > V_obj:
+            while abs(int0-V_obj) >= eps1:
+                print(int0,V_obj)
+                if int0 > V_obj:
                     l -= eps2
                 else:
                     l += eps2
                 # print(l)
                 chi_next = projector(chi-mu*Jp, l, domain_omega)
-                int = integral(chi_next)
+                int0 = integral(chi_next)
                 eps2 /= 2
                 # print(V_obj, int, eps2, l)
                 # postprocessing._plot_perso_solution(chi_next, chi*0)
@@ -201,7 +202,7 @@ def integral(chi):
     n, m = numpy.shape(chi)
     for j in range(m-1):
         for i in range(n-1):
-            res += chi[i][j]
+            res += chi[i][j]*spacestep
     return res
 
 
@@ -292,11 +293,12 @@ if __name__ == '__main__':
             if domain_omega[i, j] == _env.NODE_ROBIN:
                 S += 1
     V_0 = 1  # initial volume of the domain
-    # V_obj = numpy.sum(numpy.sum(chi)) / S  # constraint on the density
-    V_obj = numpy.sum(numpy.sum(chi))
+    V_obj = integral(chi) 
+    # numpy.sum(numpy.sum(chi)) / S  # constraint on the density
+    # V_obj = numpy.sum(numpy.sum(chi))
     mu = 0.5  # initial gradient step
     mu1 = 10**(-5)  # parameter of the volume functional
-
+    print(V_obj,integral(chi))
     # ----------------------------------------------------------------------
     # -- Do not modify this cell, these are the values that you will be assessed against.
     # ----------------------------------------------------------------------
@@ -320,6 +322,7 @@ if __name__ == '__main__':
 
     chin = chi.copy()
     un = u.copy()
+    print(integral(chi),"vs ", numpy.sum(numpy.sum(chi))/S)
 
     # -- plot chi, u, and energy
     postprocessing._plot_uncontroled_solution(u0, chi0)
