@@ -30,7 +30,7 @@ def your_optimization_procedure(domain_omega, spacestep, wavenumber, f, f_dir, f
                                 Alpha, mu, chi, V_obj, mu1, V_0):
 
     eps1 = 0.01
-    eps2_0 = 100
+    eps2_0 = 30
     eps2 = eps2_0
     eps0 = 0.00001
     """This function return the optimized density.
@@ -102,6 +102,8 @@ def your_optimization_procedure(domain_omega, spacestep, wavenumber, f, f_dir, f
         Jp = -numpy.real(Alpha*u*p)
 
         Jp[1:, :] = Jp[:-1, :]
+
+        postprocessing._plot_perso_solution(Jp, chi*0)
 
         while ene >= energy[k] and mu > eps0:
             l = 0
