@@ -50,6 +50,27 @@ def your_optimization_procedure(domain_omega, spacestep, wavenumber, f, f_dir, f
     numb_iter = 20
     energy = numpy.zeros((numb_iter+1, 1), dtype=numpy.float64)
 
+    ##########################################################
+    #   Différentes distributions initiales
+    ##########################################################
+
+    # indices = list(range(2*(len(x)-1)//10, 4*(len(x)-1)//10))
+
+    # indices.extend(list(range(6*(len(x)-1)//10, 8*(len(x)-1)//10)))
+    # # print(indices)
+
+    # # budget : percentage of the border we can cover with liners
+    # budget = len(indices)/len(x)
+
+    # x_sub = [x[k] for k in indices]
+    # y_sub = [y[k] for k in indices]
+
+    # # -- define material density matrix
+    # chi = preprocessing._set_chi(M, N, x_sub, y_sub)
+    # chi = preprocessing.set2zero(chi, domain_omega)
+
+    ##########################################################
+
     while k < numb_iter and mu > eps0:
         print('---- iteration number = ', k)
         print('1. computing solution of Helmholtz problem, i.e., u')
@@ -99,7 +120,7 @@ def your_optimization_procedure(domain_omega, spacestep, wavenumber, f, f_dir, f
                     l -= eps2
                 else:
                     l += eps2
-                print(l)
+                # print(l)
                 chi_next = projector(chi-mu*Jp, l, domain_omega)
                 int = integral(chi_next)
                 eps2 /= 2
@@ -238,9 +259,9 @@ if __name__ == '__main__':
     # -- define subset of border on which we put the liner
     # modify this to change liners distribution
 
-    indices = list(range(2*(len(x)-1)//10, 4*(len(x)-1)//10))
+    indices = list(range(0*(len(x)-1)//10, 4*(len(x)-1)//10))
 
-    indices.extend(list(range(6*(len(x)-1)//10, 8*(len(x)-1)//10)))
+    # indices.extend(list(range(6*(len(x)-1)//10, 8*(len(x)-1)//10)))
     # print(indices)
 
     # budget : percentage of the border we can cover with liners
@@ -271,7 +292,7 @@ if __name__ == '__main__':
     V_0 = 1  # initial volume of the domain
     # V_obj = numpy.sum(numpy.sum(chi)) / S  # constraint on the density
     V_obj = numpy.sum(numpy.sum(chi))
-    mu = 1000000  # initial gradient step
+    mu = 0.5  # initial gradient step
     mu1 = 10**(-5)  # parameter of the volume functional
 
     # ----------------------------------------------------------------------
