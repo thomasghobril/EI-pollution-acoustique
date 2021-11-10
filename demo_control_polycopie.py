@@ -180,7 +180,7 @@ def integral(chi):
     n, m = numpy.shape(chi)
     for j in range(m-1):
         for i in range(n-1):
-            res += chi[i][j]
+            res += chi[i][j]*spacestep
     return res
 
 
@@ -308,3 +308,33 @@ if __name__ == '__main__':
     postprocessing._plot_energy_history(energy)
 
     print('End.')
+
+
+### Affichage de l'énergie en fct de omega
+
+def valeur_finale_energie(energy):
+    E_final=energy[0]
+    k=1
+    while energy[k]!=0 and k<100:
+        E_final=energy[k]
+        k+=1
+    if k ==100:
+        return 600
+    return E_final
+
+import matplotlib.pyplot as plt
+
+L_wavenumber
+L_Energy=[]
+for wavenumber in L_wavenumber:
+    energy=your_optimization_procedure(domain_omega, spacestep, wavenumber, f, f_dir, f_neu,
+                                                    f_rob, beta_pde, alpha_pde, alpha_dir, beta_neu, beta_rob, alpha_rob, Alpha, mu, chi, V_obj, mu1, V_0)[2]
+    L_Energy.append(valeur_finale_energie(energy))  
+L_omega=[w*340 for w in L_wavenumber]
+plt.plot(L_omega,L_Energy)
+plt.xlabel('Omega')
+plt.ylabel=('Energy')
+plt.show()
+
+
+        
