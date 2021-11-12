@@ -104,7 +104,7 @@ def your_optimization_procedure(domain_omega, spacestep, wavenumber, f, f_dir, f
         Jp[1:, :] = Jp[:-1, :]
 
         # postprocessing._plot_perso_solution(Jp, chi*0)
-
+        break
         while ene >= energy[k] and mu > eps0:
             l = 0
             # print('    a. computing gradient descent')
@@ -225,7 +225,7 @@ if __name__ == '__main__':
     # MF : 10 - 100
     # BF : 0.18 - 20
 
-    L_wavenumber= numpy.logspace(numpy.log10(10),numpy.log10(200),20)
+    L_wavenumber= numpy.logspace(numpy.log10(80),numpy.log10(176),20)
     print(L_wavenumber)
     L_Energy=[]
     for wavenumber in L_wavenumber:
@@ -283,7 +283,7 @@ if __name__ == '__main__':
         # -- define subset of border on which we put the liner
         # modify this to change liners distribution
 
-        indices = list(range(0*(len(x)-1)//10, 4*(len(x)-1)//10))
+        indices = list(range(0*(len(x)-1)//10, 10*(len(x)-1)//10))
 
         # indices.extend(list(range(6*(len(x)-1)//10, 8*(len(x)-1)//10)))
         # print(indices)
