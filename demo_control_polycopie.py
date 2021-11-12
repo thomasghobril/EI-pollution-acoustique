@@ -126,8 +126,9 @@ def your_optimization_procedure(domain_omega, spacestep, wavenumber, f, f_dir, f
                 # print(l)
                 chi_next = projector(chi-mu*Jp, l, domain_omega)
                 int0 = integral(chi_next)
+                # eps2 = 0.1*abs(int0-V_obj) + 0.0001
                 eps2 = numpy.exp(0.1*abs(int0-V_obj))-1 + 0.0001
-                print("Comparaison budget :", V_obj, int0)
+                print("Comparaison budget :", V_obj, int0, "Epsilon2 = ", eps2)
                 # postprocessing._plot_perso_solution(chi_next, chi*0)
 
             print("Fini")
@@ -192,7 +193,7 @@ def projector(chi, l, domain):
     new_chi = numpy.zeros((n, m), dtype='float')
     for i in range(n):
         for j in range(m):
-            if preprocessing.is_on_boundary(domain[i, j]) == 'BOUNDARY':
+            if domain[i, j] == _env.NODE_ROBIN:
                 new_chi[i][j] = max(0, min(chi[i][j]+l, 1))
     return new_chi
 
