@@ -71,7 +71,7 @@ def your_optimization_procedure(domain_omega, spacestep, wavenumber, f, f_dir, f
 
     ##########################################################
 
-    while k < numb_iter and mu > eps0:
+    while False and k < numb_iter and mu > eps0:
         print('---- iteration number = ', k)
         # print('1. computing solution of Helmholtz problem, i.e., u')
 
@@ -104,7 +104,6 @@ def your_optimization_procedure(domain_omega, spacestep, wavenumber, f, f_dir, f
         Jp[1:, :] = Jp[:-1, :]
 
         # postprocessing._plot_perso_solution(Jp, chi*0)
-        break
         while ene >= energy[k] and mu > eps0:
             l = 0
             # print('    a. computing gradient descent')
@@ -225,7 +224,7 @@ if __name__ == '__main__':
     # MF : 10 - 100
     # BF : 0.18 - 20
 
-    L_wavenumber= numpy.logspace(numpy.log10(80),numpy.log10(176),20)
+    L_wavenumber= numpy.logspace(numpy.log10(80),numpy.log10(176),40)
     print(L_wavenumber)
     L_Energy=[]
     for wavenumber in L_wavenumber:
