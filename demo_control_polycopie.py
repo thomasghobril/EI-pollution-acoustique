@@ -28,11 +28,11 @@ import random
 def your_optimization_procedure(domain_omega, spacestep, wavenumber, f, f_dir, f_neu, f_rob,
                                 beta_pde, alpha_pde, alpha_dir, beta_neu, beta_rob, alpha_rob,
                                 Alpha, mu, chi, V_obj, mu1, V_0):
-
     eps1 = 0.01
-    eps2_0 = 100
-    eps2 = eps2_0
-    eps0 = 0.00001
+    eps2_0 = 30*spacestep*40
+    eps2 = eps2_0*spacestep*40
+    eps0 = 0.00001*spacestep*40
+    eps3 = 0.1*spacestep*40
     """This function return the optimized density.
 
     Parameter:
@@ -47,7 +47,7 @@ def your_optimization_procedure(domain_omega, spacestep, wavenumber, f, f_dir, f
 
     k = 0
     (M, N) = numpy.shape(domain_omega)
-    numb_iter = 20
+    numb_iter = 10
     energy = numpy.zeros((numb_iter+1, 1), dtype=numpy.float64)
 
     ##########################################################
@@ -103,6 +103,8 @@ def your_optimization_procedure(domain_omega, spacestep, wavenumber, f, f_dir, f
 
         Jp[1:, :] = Jp[:-1, :]
 
+        postprocessing._plot_perso_solution(chi, chi*0)
+
         while ene >= energy[k] and mu > eps0:
             l = 0
             # print('    a. computing gradient descent')
@@ -115,6 +117,10 @@ def your_optimization_procedure(domain_omega, spacestep, wavenumber, f, f_dir, f
             int0 = integral(chi_next)
             eps2 = eps2_0
 
+<<<<<<< HEAD
+=======
+            postprocessing._plot_perso_solution(chi_next, chi*0)
+>>>>>>> Nico_Spacestep
             while abs(int0-V_obj) >= eps1:
                 if int0 > V_obj:
                     l -= eps2
@@ -123,11 +129,18 @@ def your_optimization_procedure(domain_omega, spacestep, wavenumber, f, f_dir, f
                 # print(l)
                 chi_next = projector(chi-mu*Jp, l, domain_omega)
                 int0 = integral(chi_next)
+<<<<<<< HEAD
                 eps2 /= 2
                 # print(V_obj, int, eps2, l)
+=======
+                # eps2 = 0.1*abs(int0-V_obj) + 0.0001
+                eps2 = numpy.exp(0.1*abs(int0-V_obj))-1 + 0.0001
+                print("Comparaison budget :", V_obj, int0, "Epsilon2 = ", eps2)
+>>>>>>> Nico_Spacestep
                 # postprocessing._plot_perso_solution(chi_next, chi*0)
 
-            postprocessing._plot_perso_solution(chi_next, chi*0)
+            print("Fini")
+
             # print('    c. computing solution of Helmholtz problem, i.e., u')
             alpha_rob = Alpha * chi_next
             u = processing.solve_helmholtz(domain_omega, spacestep, wavenumber, f, f_dir, f_neu,
@@ -143,7 +156,7 @@ def your_optimization_procedure(domain_omega, spacestep, wavenumber, f, f_dir, f
             energy[k+1] = ene
             if ene < energy[k]:
                 # The step is increased if the energy decreased
-                mu = mu * 1.1
+                mu = mu * (1+eps3)
             else:
                 # The step is decreased is the energy increased
                 mu = mu / 2
@@ -188,7 +201,7 @@ def projector(chi, l, domain):
     new_chi = numpy.zeros((n, m), dtype='float')
     for i in range(n):
         for j in range(m):
-            if preprocessing.is_on_boundary(domain[i, j]) == 'BOUNDARY':
+            if domain[i, j] == _env.NODE_ROBIN:
                 new_chi[i][j] = max(0, min(chi[i][j]+l, 1))
     return new_chi
 
@@ -199,7 +212,7 @@ def integral(chi):
     n, m = numpy.shape(chi)
     for j in range(m-1):
         for i in range(n-1):
-            res += chi[i][j]
+            res += chi[i][j]*spacestep
     return res
 
 
@@ -208,12 +221,6 @@ if __name__ == '__main__':
     # ----------------------------------------------------------------------
     # -- Fell free to modify the function call in this cell.
     # ----------------------------------------------------------------------
-    # -- set parameters of the geometry
-    N = 40  # number of points along x-axis
-    M = 2 * N  # number of points along y-axis
-    level = 2  # level of the fractal : limited by N
-    spacestep = 1.0 / N  # mesh size
-
     # -- set parameters of the partial differential equation
     kx = -1.0
     ky = -1.0
@@ -221,6 +228,14 @@ if __name__ == '__main__':
     wavenumber = numpy.sqrt(kx**2 + ky**2)  # wavenumber
     wavenumber = 10.0
     omega = wavenumber*c
+
+    # -- set parameters of the geometry
+    # N = max(int(7.*wavenumber),20) # number of points along x-axis
+    N = 70
+    M = 2 * N  # number of points along y-axis
+    level = 2  # level of the fractal : limited by N
+    spacestep = 1.0 / N  # mesh size
+
     # ----------------------------------------------------------------------
     # -- Do not modify this cell, these are the values that you will be assessed against.
     # ----------------------------------------------------------------------
@@ -294,8 +309,9 @@ if __name__ == '__main__':
             if domain_omega[i, j] == _env.NODE_ROBIN:
                 S += 1
     V_0 = 1  # initial volume of the domain
-    # V_obj = numpy.sum(numpy.sum(chi)) / S  # constraint on the density
-    V_obj = numpy.sum(numpy.sum(chi))
+    V_obj = integral(chi)
+    # numpy.sum(numpy.sum(chi)) / S  # constraint on the density
+    # V_obj = numpy.sum(numpy.sum(chi))
     mu = 0.5  # initial gradient step
     mu1 = 10**(-5)  # parameter of the volume functional
 
