@@ -71,7 +71,7 @@ def your_optimization_procedure(domain_omega, spacestep, wavenumber, f, f_dir, f
 
     ##########################################################
 
-    while False and k < numb_iter and mu > eps0:
+    while k < numb_iter and mu > eps0:
         print('---- iteration number = ', k)
         # print('1. computing solution of Helmholtz problem, i.e., u')
 
@@ -224,7 +224,11 @@ if __name__ == '__main__':
     # MF : 10 - 100
     # BF : 0.18 - 20
 
-    L_wavenumber= numpy.logspace(numpy.log10(80),numpy.log10(176),40)
+    # Plage de fréquences audibles f = 20Hz - 200Hz
+    # omega = 60 - 600
+    # wavenumber = 0.18 - 18
+
+    L_wavenumber= numpy.linspace(0.18,18,200)
     print(L_wavenumber)
     L_Energy=[]
     for wavenumber in L_wavenumber:
@@ -282,7 +286,7 @@ if __name__ == '__main__':
         # -- define subset of border on which we put the liner
         # modify this to change liners distribution
 
-        indices = list(range(0*(len(x)-1)//10, 10*(len(x)-1)//10))
+        indices = list(range(0*(len(x)-1)//10, 3*(len(x)-1)//10))
 
         # indices.extend(list(range(6*(len(x)-1)//10, 8*(len(x)-1)//10)))
         # print(indices)
