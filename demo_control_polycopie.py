@@ -236,9 +236,9 @@ if __name__ == '__main__':
     # -- Fell free to modify the function call in this cell.
     # ----------------------------------------------------------------------
     # -- set parameters of the geometry
-    N = 40  # number of points along x-axis
+    N = 70  # number of points along x-axis
     M = 2 * N  # number of points along y-axis
-    level = 0  # level of the fractal : limited by N
+    level = 2  # level of the fractal : limited by N
     spacestep = 1.0 / N  # mesh size
 
     budget = 0.3
@@ -290,6 +290,7 @@ if __name__ == '__main__':
     # budget : percentage of the border we can cover with liners
     # print(list_indice)
     energy_final = []
+    chi_final = []
 
     for o in range(len(list_indice)):
         indices = list_indice[o]
@@ -351,10 +352,20 @@ if __name__ == '__main__':
             if energy[p] > 0 and energy[p] < mini:
                 mini = energy[p]
         energy_final.append(mini)
+        chi_final.append(chi)
+
         postprocessing._plot_uncontroled_solution(u0, chi0)
         postprocessing._plot_controled_solution(un, chin)
         err = un - u0
         postprocessing._plot_error(err)
         postprocessing._plot_energy_history(energy)
+
+    ind = 0
+    mini_ener = energy_final[0][0]
+    for p in range(len(energy_final)):
+        if energy_final[p] < mini_ener:
+            mini = energy[p]
+            ind = p
     print(energy_final)
+    print(ind)
     print('End.')
