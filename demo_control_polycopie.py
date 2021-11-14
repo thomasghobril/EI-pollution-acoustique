@@ -35,8 +35,11 @@ def distributions_init(x, budget, nombre_CI):
     bloc = list(range(int(0*(len(x)-1)), int((budget)*(len(x)-1))))
 
     ### Distribution en 1 bloc ###
+    if nombre_CI > 1:
+        step = len(x)*(1-budget)/(nombre_CI-1)
 
-    step = len(x)*(1-budget)/(nombre_CI-1)
+    else:
+        step = 0
 
     for i in range(nombre_CI):
         distributions.append(bloc)
@@ -125,7 +128,7 @@ def your_optimization_procedure(domain_omega, spacestep, wavenumber, f, f_dir, f
 
         Jp[1:, :] = Jp[:-1, :]
 
-        postprocessing._plot_perso_solution(chi, chi*0)
+        # postprocessing._plot_perso_solution(chi, chi*0)
 
         while ene >= energy[k] and mu > eps0:
             l = 0
@@ -139,7 +142,7 @@ def your_optimization_procedure(domain_omega, spacestep, wavenumber, f, f_dir, f
             int0 = integral(chi_next)
             eps2 = eps2_0
 
-            postprocessing._plot_perso_solution(chi_next, chi*0)
+            postprocessing._plot_perso_solution(chi, chi*0)
 
             while abs(int0-V_obj) >= eps1:
                 if int0 > V_obj:
@@ -241,18 +244,18 @@ if __name__ == '__main__':
     ky = -1.0
     c = 340
     wavenumber = numpy.sqrt(kx**2 + ky**2)  # wavenumber
-    wavenumber = 10.0
+    wavenumber = 10
     omega = wavenumber*c
 
     budget = 0.4
 
-    nombre_CI = 5
+    nombre_CI = 1
 
     # -- set parameters of the geometry
     # N = max(int(7.*wavenumber),20) # number of points along x-axis
-    N = 70
+    N = 100
     M = 2 * N  # number of points along y-axis
-    level = 2  # level of the fractal : limited by N
+    level = 0  # level of the fractal : limited by N
     spacestep = 1.0 / N  # mesh size
 
     # ----------------------------------------------------------------------
@@ -298,6 +301,10 @@ if __name__ == '__main__':
 
     for o in range(len(list_indice)):
         indices = list_indice[o]
+
+        indices = list(range(0*(len(x)-1)//10, 4*(len(x)-1)//10))
+        # indices.extend(list(range(8*(len(x)-1)//10, 10*(len(x)-1)//10)))
+
         x_sub = [x[k] for k in indices]
         y_sub = [y[k] for k in indices]
 
