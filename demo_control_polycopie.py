@@ -20,7 +20,7 @@ import processing
 import postprocessing
 import alpha_compute
 import pdb
-#import solutions
+# import solutions
 
 import random
 
@@ -34,29 +34,33 @@ def distributions_init(x, budget):
     budget *= 10
 
     ### Distribution en 1 bloc ###
-    distributions.append(
-        list(range(int(2*(len(x)-1)//10), int((2+budget)*(len(x)-1)//10))))
-    distributions.append(
-        list(range(int(5*(len(x)-1)//10), int((5+budget)*(len(x)-1)//10))))
+    # distributions.append(
+    #     list(range(int(2*(len(x)-1)//10), int((2+budget)*(len(x)-1)//10))))
+
+    # distributions.append(
+    #     list(range(int(5*(len(x)-1)//10), int((5+budget)*(len(x)-1)//10))))
 
     ### Distribution en 2 blocs ###
-    add = list(range(int(2*(len(x)-1)//10), int((2+budget/2)*(len(x)-1)//10)))
-    add.extend(list(range(int((2+2*budget)*(len(x)-1)//10),
-                          int((2+2.5*budget)*(len(x)-1)//10))))
-    distributions.append(add)
-    # distributions.append((list(range(int(2*(len(x)-1)//10), int((2+budget/2)*(len(x)-1)//10)))).extend(
-    #     list(range(int((2+2*budget)*(len(x)-1)//10), int((2+2.5*budget)*(len(x)-1)//10)))))
-    add = list(range((int(len(x)-1)//10), int((1+budget/2)*(len(x)-1)//10)))
-    add.extend(list(range(int((1+2*budget)*(len(x)-1)//10),
-                          int((1+2.5*budget)*(len(x)-1)//10))))
-    distributions.append(add)
+    # add = list(range(int(2*(len(x)-1)//10), int((2+budget/2)*(len(x)-1)//10)))
+    # add.extend(list(range(int((2+2*budget)*(len(x)-1)//10),
+    #                       int((2+2.5*budget)*(len(x)-1)//10))))
+    # distributions.append(add)
+
+# distributions.append((list(range(int(2*(len(x)-1)//10), int((2+budget/2)*(len(x)-1)//10)))).extend(
+#     list(range(int((2+2*budget)*(len(x)-1)//10), int((2+2.5*budget)*(len(x)-1)//10)))))
+
+    # add = list(range((int(len(x)-1)//10), int((1+budget/2)*(len(x)-1)//10)))
+    # add.extend(list(range(int((1+2*budget)*(len(x)-1)//10),
+    #                       int((1+2.5*budget)*(len(x)-1)//10))))
+    # distributions.append(add)
+
     # distributions.append((list(range((int(len(x)-1)//10), int((1+budget/2)*(len(x)-1)//10)))).extend(
     #     list(range(int((1+3*budget)*(len(x)-1)//10), int((1+3.5*budget)*(len(x)-1)//10)))))
-    add = list(range(int((5-budget)*(len(x)-1)//10),
-                     int((5-budget/2)*(len(x)-1)//10)))
-    add.extend(
-        list(range(int((5+budget/2)*(len(x)-1)//10), int((5+budget)*(len(x)-1)//10))))
-    distributions.append(add)
+    # add = list(range(int((5-budget)*(len(x)-1)//10),
+    #                  int((5-budget/2)*(len(x)-1)//10)))
+    # add.extend(
+    #     list(range(int((5+budget/2)*(len(x)-1)//10), int((5+budget)*(len(x)-1)//10))))
+    # distributions.append(add)
     # distributions.append((list(range(int((5-budget)*(len(x)-1)//10), int((5-budget/2)*(len(x)-1)//10))
     #                            ).extend(list(range(int((5+budget/2)*(len(x)-1)//10), int((5+budget)*(len(x)-1)//10))))))
 
@@ -66,9 +70,9 @@ def distributions_init(x, budget):
         4*(len(x)-1)//10), int((4+budget/3)*(len(x)-1)//10))))
     add.extend(list(range(int((10-budget/3)*(len(x)-1)//10), int(len(x)-1))))
     distributions.append(add)
-    '''distributions.append(((list(range(int(0*(len(x)-1)//10), int((budget/3)*(len(x)-1)//10)))).extend(list(range(int(
-        4*(len(x)-1)//10), int((4+budget/3)*(len(x)-1)//10))))).extend(list(range(int((10-budget/3)*(len(x)-1)//10), int(len(x)-1)))))
-'''
+    # distributions.append(((list(range(int(0*(len(x)-1)//10), int((budget/3)*(len(x)-1)//10)))).extend(list(range(int(
+    #     4*(len(x)-1)//10), int((4+budget/3)*(len(x)-1)//10))))).extend(list(range(int((10-budget/3)*(len(x)-1)//10), int(len(x)-1)))))
+
     return distributions
 
 
@@ -129,7 +133,7 @@ def your_optimization_procedure(domain_omega, spacestep, wavenumber, f, f_dir, f
 
         Jp[1:, :] = Jp[:-1, :]
 
-        #postprocessing._plot_perso_solution(Jp, chi*0)
+        # postprocessing._plot_perso_solution(Jp, chi*0)
 
         while ene >= energy[k] and mu > eps0:
             l = 0
@@ -238,7 +242,7 @@ if __name__ == '__main__':
     # -- set parameters of the geometry
     N = 70  # number of points along x-axis
     M = 2 * N  # number of points along y-axis
-    level = 2  # level of the fractal : limited by N
+    level = 0  # level of the fractal : limited by N
     spacestep = 1.0 / N  # mesh size
 
     budget = 0.3
@@ -306,8 +310,8 @@ if __name__ == '__main__':
         Alpha = al[0] + 1.0j*al[1]
 
     # -- this is the function you have written during your project
-    #import compute_alpha
-    #Alpha = compute_alpha.compute_alpha(...)
+    # import compute_alpha
+    # Alpha = compute_alpha.compute_alpha(...)
         alpha_rob = Alpha * chi
 
     # -- set parameters for optimization
@@ -354,11 +358,11 @@ if __name__ == '__main__':
         energy_final.append(mini)
         chi_final.append(chi)
 
-        postprocessing._plot_uncontroled_solution(u0, chi0)
-        postprocessing._plot_controled_solution(un, chin)
-        err = un - u0
-        postprocessing._plot_error(err)
-        postprocessing._plot_energy_history(energy)
+    postprocessing._plot_uncontroled_solution(u0, chi0)
+    postprocessing._plot_controled_solution(un, chin)
+    err = un - u0
+    postprocessing._plot_error(err)
+    postprocessing._plot_energy_history(energy)
 
     ind = 0
     mini_ener = energy_final[0][0]
